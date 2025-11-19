@@ -28,8 +28,8 @@ Rectangle {
                 case "create": return "../../Pages/CreatePage.qml"
                 case "storyboard": return "../../Pages/StoryboardPage.qml"
                 case "assets": return "../../Pages/AssetsPage.qml"
-                case "shotDetail": return "../../Pages/ShotDetail.qml" // 注意：确保此文件存在
-                case "preview": return "../../Pages/PreviewPage.qml"   // 注意：确保此文件存在
+                case "shotDetail": return "../../Pages/ShotDetail.qml"
+                case "preview": return "../../Pages/PreviewPage.qml"
                 default: return "../../Pages/CreatePage.qml"
             }
         }

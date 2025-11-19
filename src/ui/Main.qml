@@ -13,8 +13,7 @@ Window {
     visible: true
     title: qsTr("StoryFlow")
     color: "#F9FAFB"
-    flags: Qt.FramelessWindowHint | Qt.Window |
-           Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint
+    flags: Qt.FramelessWindowHint | Qt.Window
 
     // 全局状态
     property string currentPage: "create"
