@@ -5,6 +5,8 @@ project(StoryFlow VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Quick Network QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -27,6 +29,8 @@ qt_add_qml_module(appStoryFlow
         RESOURCES src/ui/res.qrc
         QML_FILES src/ui/Pages/PreviewPage.qml
         QML_FILES src/ui/Pages/ShotDetailPage.qml
+        SOURCES src/backend.h src/backend.cpp
+        SOURCES
         # src/ui/Pages/ShotDetail.qml
         # src/ui/Pages/PreviewPage.qml
 )
@@ -44,7 +48,10 @@ set_target_properties(appStoryFlow PROPERTIES
 
 target_link_libraries(appStoryFlow
     PRIVATE Qt6::Quick
+    Qt6::Network
+    Qt6::QuickControls2
 )
+target_link_libraries(appStoryFlow PRIVATE Qt6::Core)
 
 include(GNUInstallDirs)
 install(TARGETS appStoryFlow

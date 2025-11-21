@@ -9,9 +9,7 @@ Rectangle{
     anchors.left: parent.left
     anchors.bottom: parent.bottom
     anchors.right: home_right.left
-    color: "#F8F9FA"  // 浅米白
-    border.color: "#EAEAEA"
-    border.width: 1
+    color: "#E9EEF6"  // 淡蓝
 
     // 属性
     property string currentPage: "create"
@@ -32,10 +30,12 @@ Rectangle{
         // Create 导航项
         Rectangle {
             id: createNav
-            width: parent.width
+            width: 0.8*parent.width
             height: 50
-            color: currentPage === "create" ? "#E3F2FD" :
-                    createMouseArea.containsMouse ? "#F5F5F5" : "transparent"
+            anchors.horizontalCenter: parent.horizontalCenter
+            radius: 10
+            color: currentPage === "create" ? "#D3E3FD" :
+                    createMouseArea.containsMouse ? "#DCE1E9" : "transparent"
 
             Row {
                 anchors.verticalCenter: parent.verticalCenter
@@ -59,7 +59,7 @@ Rectangle{
                 Text {
                     text: "Create"
                     font.pixelSize: 16
-                    color: currentPage === "create" ? "#1976D2" : "#666666"
+                    color: currentPage === "create" ? "#5775A9" : "#444746"
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -68,17 +68,22 @@ Rectangle{
                 id: createMouseArea
                 anchors.fill: parent
                 hoverEnabled: true
-                onClicked: home_left.navigateTo("create")
+                onClicked: {
+                    home_left.navigateTo("create")
+                    home_right.navigateTo("create")
+                }
             }
         }
 
         // Assets 导航项
         Rectangle {
             id: assetsNav
-            width: parent.width
+            width: 0.8*parent.width
             height: 50
-            color: currentPage === "assets" ? "#E3F2FD" :
-                    assetsMouseArea.containsMouse ? "#F5F5F5" : "transparent"
+            anchors.horizontalCenter: parent.horizontalCenter
+            radius: 10
+            color: currentPage === "assets" ? "#D3E3FD" :
+                    assetsMouseArea.containsMouse ? "#DCE1E9" : "transparent"
 
             Row {
                 anchors.verticalCenter: parent.verticalCenter
@@ -102,7 +107,7 @@ Rectangle{
                 Text {
                     text: "Assets"
                     font.pixelSize: 16
-                    color: currentPage === "assets" ? "#1976D2" : "#666666"
+                    color: currentPage === "assets" ? "#5775A9" : "#444746"
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -111,7 +116,10 @@ Rectangle{
                 id: assetsMouseArea
                 anchors.fill: parent
                 hoverEnabled: true
-                onClicked: home_left.navigateTo("assets")
+                onClicked: {
+                    home_left.navigateTo("assets")
+                    home_right.navigateTo("assets")
+                }
             }
         }
     }

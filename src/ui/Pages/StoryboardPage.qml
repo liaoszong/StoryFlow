@@ -8,10 +8,12 @@ Rectangle {
     // 属性
     property string selectedStyle: ""
     property string storyText: ""
+    property var projectData: ({ "storyboards": [] })
 
     // 信号,传递给RightPage
     signal styleSelected(string style)
     signal generateStory()
+    signal navigateTo(string page)
 
     ColumnLayout {
         anchors.fill: parent
@@ -33,144 +35,171 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter
         }
 
-        // 三个分镜区域
-        RowLayout {
+        // 把原来的 RowLayout 删掉，换成这个 ListView
+        ListView {
+            id: shotList
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            // 【1. 数据源】
+            // 告诉列表：你的数据在 projectData 里的 storyboards 字段里
+            // 如果为空，就给个空数组 []
+            model: (storyboardPage.projectData && storyboardPage.projectData.storyboards)
+                   ? storyboardPage.projectData.storyboards
+                   : []
+
+            // 【2. 排列方式】横向排列
+            orientation: ListView.Horizontal
             spacing: 20
+            clip: true // 防止卡片滑出边界
 
-            // 分镜1
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: "#E3F2FD"
+            // 【3. 卡片模板 (Delegate)】
+            // 每一个分镜数据都会套用这个模板渲染一次
+            delegate: Rectangle {
+                width: 300  // 卡片宽度
+                height: shotList.height // 高度占满列表
+                color: "#FFFFFF"
                 radius: 12
-                border.color: "#BBDEFB"
-                border.width: 2
+                border.color: "#E0E0E0"
+                border.width: 1
 
-                Column {
-                    anchors.centerIn: parent
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 15
                     spacing: 10
 
-                    Text {
-                        text: "🎬"
-                        font.pixelSize: 32
-                        anchors.horizontalCenter: parent.horizontalCenter
+                    // A. 顶部：图片或占位符
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 160
+                        color: "#F5F5F5"
+                        radius: 8
+                        clip: true
+
+                        // 如果有图片 URL 就显示图片 (Image)，没有就显示文字
+                        // modelData 代表当前这一条分镜数据
+                        Image {
+                            anchors.fill: parent
+                            source: modelData.imageUrl ? modelData.imageUrl : ""
+                            fillMode: Image.PreserveAspectCrop
+                            visible: modelData.imageUrl !== ""
+                        }
+
+                        // 没图片时显示的占位文字
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData.imageUrl ? "" : "Waiting for Image..."
+                            color: "#999999"
+                            visible: !modelData.imageUrl
+                        }
+
+                        // 状态标签 (比如 "generating")
+                        Rectangle {
+                            anchors.top: parent.top
+                            anchors.right: parent.right
+                            anchors.margins: 8
+                            width: 80
+                            height: 24
+                            radius: 12
+                            color: "#E3F2FD" // 浅蓝色背景
+                            Text {
+                                anchors.centerIn: parent
+                                // 显示状态文本
+                                text: modelData.status
+                                color: "#1565C0"
+                                font.pixelSize: 12
+                            }
+                        }
                     }
 
+                    // B. 中间：标题
                     Text {
-                        text: "分镜 1"
-                        font.pixelSize: 16
-                        font.weight: Font.Medium
-                        color: "#1976D2"
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        // 使用数据里的 sceneTitle
+                        text: modelData.sceneTitle
+                        font.pixelSize: 18
+                        font.weight: Font.Bold
+                        color: "#333333"
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight //文字太长自动显示省略号
                     }
 
+                    // C. 中间：旁白摘要
                     Text {
-                        text: "开场场景"
+                        // 使用数据里的 narration
+                        text: modelData.narration
                         font.pixelSize: 14
                         color: "#666666"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                }
-            }
-
-            // 分镜2
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: "#F3E5F5"
-                radius: 12
-                border.color: "#E1BEE7"
-                border.width: 2
-
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 10
-
-                    Text {
-                        text: "⚔️"
-                        font.pixelSize: 32
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        wrapMode: Text.WordWrap
+                        elide: Text.ElideRight
                     }
 
-                    Text {
-                        text: "分镜 2"
-                        font.pixelSize: 16
-                        font.weight: Font.Medium
-                        color: "#7B1FA2"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
+                    // D. 底部：详情按钮
+                    Button {
+                        text: "编辑详情"
+                        Layout.fillWidth: true
+                        onClicked: {
+                            // 当点击时，我们需要去详情页，并且带上这个分镜的数据
+                            // 这里先打印一下，确认点到了谁
+                            console.log("点击了分镜: " + modelData.shotId);
 
-                    Text {
-                        text: "冒险开始"
-                        font.pixelSize: 14
-                        color: "#666666"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                }
-            }
-
-            // 分镜3
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: "#E8F5E8"
-                radius: 12
-                border.color: "#C8E6C9"
-                border.width: 2
-
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 10
-
-                    Text {
-                        text: "🏆"
-                        font.pixelSize: 32
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-
-                    Text {
-                        text: "分镜 3"
-                        font.pixelSize: 16
-                        font.weight: Font.Medium
-                        color: "#388E3C"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-
-                    Text {
-                        text: "胜利时刻"
-                        font.pixelSize: 14
-                        color: "#666666"
-                        anchors.horizontalCenter: parent.horizontalCenter
+                            // TODO: 后面做跳转逻辑
+                        }
                     }
                 }
             }
         }
 
-        // 返回按钮
-        Button {
-            text: "返回创建页面"
+        RowLayout{
+            spacing: 10
             Layout.alignment: Qt.AlignHCenter
 
-            background: Rectangle {
-                color: parent.down ? "#E0E0E0" :
-                       parent.hovered ? "#F5F5F5" : "#FAFAFA"
-                border.color: "#E0E0E0"
-                border.width: 1
-                radius: 8
-            }
+            // 生成视频按钮
+            Button {
+                text: "生成视频"
 
-            contentItem: Text {
-                text: parent.text
-                font.pixelSize: 14
-                color: "#666666"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+                background: Rectangle {
+                    color: parent.down ? "#E0E0E0" :
+                           parent.hovered ? "#1565C0" : "#1976D2"
+                    radius: 8
+                }
 
-            onClicked: {
-                home_right.navigateTo("create")
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 14
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                onClicked: {
+                    storyboardPage.navigateTo("create")
+                }
+            }
+            // 返回按钮
+            Button {
+                text: "返回创建页面"
+
+                background: Rectangle {
+                    color: parent.down ? "#E0E0E0" :
+                           parent.hovered ? "#F5F5F5" : "#FAFAFA"
+                    border.color: "#E0E0E0"
+                    border.width: 1
+                    radius: 8
+                }
+
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 14
+                    color: "#666666"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                onClicked: {
+                    storyboardPage.navigateTo("create")
+                }
             }
         }
     }

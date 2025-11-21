@@ -27,7 +27,7 @@ Rectangle {
         }
 
         Text {
-            text: "故事生成成功！这是您的分镜预览："
+            text: "分镜预览："
             font.pixelSize: 16
             color: "#666666"
             Layout.alignment: Qt.AlignHCenter
@@ -89,7 +89,7 @@ Rectangle {
                     spacing: 10
 
                     Text {
-                        text: "⚔️"
+                        text: "⚔"
                         font.pixelSize: 32
                         anchors.horizontalCenter: parent.horizontalCenter
                     }

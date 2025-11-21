@@ -8,18 +8,7 @@ Rectangle{
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
-    color: "#F5F5F0"  // 奶白
-    border.color: "#EAEAEA"
-    border.width: 1
-
-    // 属性
-    property string currentPage: "create"
-
-    // 信号
-    signal navigateTo(string page)
-    signal minimizeClicked()
-    signal maximizeClicked()
-    signal closeClicked()
+    color: "#F7F7F7"  // 白
 
     //窗口拖动及放大还原功能
     MouseArea {
@@ -39,7 +28,7 @@ Rectangle{
         }
     }
 
-    // 应用Logo
+    // Logo
     Text {
         id: appTitle
         text: "StoryFlow"
@@ -66,6 +55,7 @@ Rectangle{
             id: minBtn
             width: 30
             height: 30
+            radius: 3
             color: "transparent"
             border.color: "transparent" // 默认无边框
             border.width: 1
@@ -82,7 +72,7 @@ Rectangle{
                 hoverEnabled: true
                 onClicked: mainWindow.showMinimized()
                 onEntered: {
-                    minBtn.border.color = "#E0E0E0" // 鼠标悬停时显示淡灰色边框
+                    minBtn.border.color = "#E7E7E7" // 鼠标悬停时显示淡灰色边框
                 }
                 onExited: {
                     minBtn.border.color = "transparent" // 鼠标离开时隐藏边框
@@ -95,6 +85,7 @@ Rectangle{
             width: 30
             height: 30
             color: "transparent"
+            radius: 3
             border.color: "transparent" // 默认无边框
             border.width: 1
             Image {
@@ -113,8 +104,12 @@ Rectangle{
                         mainWindow.showMaximized()
                     }
                 }
-                onEntered: parent.border.color = "#E0E0E0"
-                onExited: parent.border.color = "transparent"
+                onEntered: {
+                    parent.border.color = "#E7E7E7"
+                }
+                onExited: {
+                    parent.border.color = "transparent"
+                }
             }
         }
 
@@ -124,6 +119,7 @@ Rectangle{
             width: 30
             height: 30
             color: "transparent"
+            radius: 3
             border.color: "transparent" // 默认无边框
             border.width: 1
 
@@ -138,7 +134,7 @@ Rectangle{
                 hoverEnabled: true
                 onClicked: mainWindow.close()
                 onEntered: {
-                    parent.border.color = "#E0E0E0"
+                    parent.border.color = "#E81123"
                 }
                 onExited: {
                     parent.border.color = "transparent"

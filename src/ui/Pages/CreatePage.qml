@@ -9,6 +9,7 @@ Rectangle {
     // 属性
     property string selectedStyle: ""
     property string storyText: ""
+    property var currentProjectData: null
 
     // 信号
     signal styleSelected(string style)
@@ -200,31 +201,35 @@ Rectangle {
             }
         }
 
-        // 生成按钮
-        Button {
-            text: "生成故事"
+        // 生成故事
+        Rectangle{
+            id: generatestory
+            width: 100
+            height: 40
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 20
-            enabled: createPage.storyText.length > 0 && createPage.selectedStyle.length > 0
-
-            background: Rectangle {
-                color: parent.enabled ?
-                      (parent.down ? "#1565C0" :
-                       parent.hovered ? "#1976D2" : "#667eea") : "#CCCCCC"
-                radius: 8
-            }
-
-            contentItem: Text {
-                text: parent.text
+            color: createPage.storyText.length > 0 ?
+                              (mouse_gstory.containsMouse ? "#1565C0" : "#1976D2")
+                                                          : "#CCCCCC"
+            radius: 8
+            Text {
+                id: t_generatestory
+                text: "生成故事"
                 font.pixelSize: 16
                 font.weight: Font.Medium
                 color: "white"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
             }
-
-            onClicked: {
-                createPage.generateStory()
+            MouseArea{
+                id: mouse_gstory
+                hoverEnabled: true
+                anchors.fill: parent
+                onClicked: {
+                    if (createPage.storyText.length > 0) {
+                        createPage.generateStory()
+                    }
+                }
             }
         }
     }
