@@ -70,7 +70,6 @@ Rectangle{
                 hoverEnabled: true
                 onClicked: {
                     home_left.navigateTo("create")
-                    home_right.navigateTo("create")
                 }
             }
         }
@@ -118,7 +117,6 @@ Rectangle{
                 hoverEnabled: true
                 onClicked: {
                     home_left.navigateTo("assets")
-                    home_right.navigateTo("assets")
                 }
             }
         }

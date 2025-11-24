@@ -3,10 +3,10 @@ import QtQuick.Controls
 
 Rectangle {
     id: home_right
-    anchors.top: parent.top
-    anchors.left: parent.left
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
+    // anchors.top: parent.top
+    // anchors.left: home_left.right
+    // anchors.right: parent.right
+    // anchors.bottom: parent.bottom
     color: "#FFFEFA"
 
     property string currentPage: "create"
@@ -14,6 +14,7 @@ Rectangle {
     property string storyText: ""
     property bool isGenerating: false
     property var currentProjectData: null
+    property var currentShotData: null
 
     signal styleSelected(string style)
     signal generateStory()
@@ -28,7 +29,7 @@ Rectangle {
                 case "create": return "../../Pages/CreatePage.qml"
                 case "storyboard": return "../../Pages/StoryboardPage.qml"
                 case "assets": return "../../Pages/AssetsPage.qml"
-                case "shotDetail": return "../../Pages/ShotDetail.qml"
+                case "shotDetail": return "../../Pages/ShotDetailPage.qml"
                 case "preview": return "../../Pages/PreviewPage.qml"
                 default: return "../../Pages/CreatePage.qml"
             }
@@ -45,6 +46,10 @@ Rectangle {
                 if (item.hasOwnProperty("selectedStyle")) {
                     item.selectedStyle = home_right.selectedStyle
                 }
+                // 分镜详细页
+                if (item.hasOwnProperty("shotData")) {
+                    item.shotData = home_right.currentShotData
+                }
 
                 // 3. 监听子页面的输入
                 // 如果子页面里有 storyText 属性，一旦它变了，就同步给父页面
@@ -55,6 +60,24 @@ Rectangle {
                     item.storyTextChanged.connect(function() {
                         home_right.storyText = item.storyText
                     })
+                }
+
+                // 4. 信号连接：监听 Regenerate Image (ShotDetailPage)
+                if (item.hasOwnProperty("regenerateImage")) {
+                    item.regenerateImage.connect(function(shotId, newPrompt){
+                        console.log("UI: 收到重绘请求 ->", shotId);
+
+                        // 立即将状态改为 "generating" 以显示 loading
+                        updateShotStatus(shotId, "generating");
+
+                        // 调用 C++ 后端
+                        // 此时我们需要 ProjectID，假设它存储在 currentProjectData.id 中
+                        var projId = home_right.currentProjectData.id || "temp_id";
+                        var style = home_right.selectedStyle || "animation";
+
+                        // 调用 backend.cpp 中的 regenerateImage
+                        backendService.regenerateImage(projId, shotId, newPrompt, style);
+                    });
                 }
 
                 // 连接 generateStory 等信号
@@ -68,6 +91,32 @@ Rectangle {
             }
         }
     }
+
+    // 辅助函数：更新本地数据状态（避免等待服务器时界面无反应）
+        function updateShotStatus(shotId, newStatus, newUrl) {
+            // A. 更新 ShotDetail 当前查看的数据
+            if (home_right.currentShotData && home_right.currentShotData.shotId === shotId) {
+                var tempShot = Object.assign({}, home_right.currentShotData);
+                tempShot.status = newStatus;
+                if (newUrl) tempShot.localImagePath = newUrl;
+                home_right.currentShotData = tempShot; // 触发绑定更新
+            }
+
+            // B. 更新 Storyboard 列表中的数据
+            if (home_right.currentProjectData && home_right.currentProjectData.storyboards) {
+                var proj = home_right.currentProjectData;
+                var list = proj.storyboards;
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i].shotId === shotId) {
+                        list[i].status = newStatus;
+                        if (newUrl) list[i].localImagePath = newUrl;
+                        break;
+                    }
+                }
+                // 强制触发 QML 更新 (QML 对数组内部属性变化不敏感，需要重置引用)
+                home_right.currentProjectData = JSON.parse(JSON.stringify(proj));
+            }
+        }
 
     // 2. 加载遮罩 (放在 Loader 下面写，就会盖在 Loader 上面)
     Rectangle {
@@ -115,10 +164,17 @@ Rectangle {
             backendService.createStory(prompt, style);
         }
 
-        // 【新增】监听子页面的跳转请求
-        function onNavigateTo(page) {
-            console.log("UI: 收到跳转请求 -> " + page);
-            home_right.currentPage = page; // 真正的跳转发生在这里
+        function onNavigateTo(page, payload) {
+            console.log("UI: 跳转请求 -> " + page);
+            console.log("DEBUG: 接收到的 payload ID:", payload ? payload.shotId : "NULL");
+
+            // 去详情页，先把数据存起来
+            if (page === "shotDetail" && payload) {
+                home_right.currentShotData = payload;
+            }
+
+            // 同时更新 MainWindow 的当前页面，这样 LeftPage 的选中状态才会更新
+            home_right.navigateTo(page); // 这会触发 Main.qml 中的处理
         }
     }
 
@@ -131,7 +187,18 @@ Rectangle {
 
             // 跳转页面
             home_right.currentProjectData = projectData;
-            home_right.currentPage = "storyboard";
+            home_right.navigateTo("storyboard");
+        }
+
+        // 2. 单图重绘成功
+        function onImageRegenerated(updatedShotPayload) {
+            console.log("UI: 图片重绘成功 ->", updatedShotPayload.shotId);
+            // 调用辅助函数更新数据模型
+            home_right.updateShotStatus(
+                        updatedShotPayload.shotId,
+                        updatedShotPayload.status,
+                        updatedShotPayload.localImagePath
+                        );
         }
 
         function onErrorOccurred(msg) {

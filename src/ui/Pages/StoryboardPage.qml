@@ -13,7 +13,7 @@ Rectangle {
     // 信号,传递给RightPage
     signal styleSelected(string style)
     signal generateStory()
-    signal navigateTo(string page)
+    signal navigateTo(string page, var data)
 
     ColumnLayout {
         anchors.fill: parent
@@ -80,17 +80,17 @@ Rectangle {
                         // modelData 代表当前这一条分镜数据
                         Image {
                             anchors.fill: parent
-                            source: modelData.imageUrl ? modelData.imageUrl : ""
+                            source: modelData.localImagePath ? modelData.localImagePath : ""
                             fillMode: Image.PreserveAspectCrop
-                            visible: modelData.imageUrl !== ""
+                            visible: modelData.localImagePath !== ""
                         }
 
                         // 没图片时显示的占位文字
                         Text {
                             anchors.centerIn: parent
-                            text: modelData.imageUrl ? "" : "Waiting for Image..."
+                            text: modelData.localImagePath ? "" : "Waiting for Image..."
                             color: "#999999"
-                            visible: !modelData.imageUrl
+                            visible: !modelData.localImagePath
                         }
 
                         // 状态标签 (比如 "generating")
@@ -140,11 +140,17 @@ Rectangle {
                         text: "编辑详情"
                         Layout.fillWidth: true
                         onClicked: {
-                            // 当点击时，我们需要去详情页，并且带上这个分镜的数据
-                            // 这里先打印一下，确认点到了谁
-                            console.log("点击了分镜: " + modelData.shotId);
+                            var shotPayload = {
+                                "shotId": modelData.shotId,
+                                "sceneTitle": modelData.sceneTitle,
+                                "prompt": modelData.prompt,
+                                "narration": modelData.narration,
+                                "localImagePath": modelData.localImagePath,
+                                "status": modelData.status
+                            };
 
-                            // TODO: 后面做跳转逻辑
+                            console.log("准备跳转，数据ID:", shotPayload.shotId);
+                            storyboardPage.navigateTo("shotDetail", shotPayload);
                         }
                     }
                 }
@@ -174,7 +180,7 @@ Rectangle {
                 }
 
                 onClicked: {
-                    storyboardPage.navigateTo("create")
+                    storyboardPage.navigateTo("create", null)
                 }
             }
             // 返回按钮
@@ -198,7 +204,7 @@ Rectangle {
                 }
 
                 onClicked: {
-                    storyboardPage.navigateTo("create")
+                    storyboardPage.navigateTo("create", null)
                 }
             }
         }
