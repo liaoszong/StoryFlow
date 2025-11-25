@@ -16,6 +16,7 @@ Rectangle {
     property bool isGenerating: false
     property var currentProjectData: null
     property var currentShotData: null
+    property var globalProjectList: []
 
     signal styleSelected(string style)
     signal generateStory()
@@ -50,6 +51,14 @@ Rectangle {
                 // 分镜详细页
                 if (item.hasOwnProperty("shotData")) {
                     item.shotData = home_right.currentShotData
+                }
+
+                // 如果加载的是 AssetsPage，把历史列表传给它
+                if (home_right.currentPage === "assets" && item.hasOwnProperty("allProjectsList")) {
+                    // 传递数据引用
+                    item.allProjectsList = home_right.globalProjectList
+                    // 强制刷新一下（有时 QML 首次加载不会自动触发 onTextChanged）
+                    if (item.forceUpdateUI) item.forceUpdateUI()
                 }
 
                 // 3. 监听子页面的输入
@@ -94,30 +103,30 @@ Rectangle {
     }
 
     // 辅助函数：更新本地数据状态（避免等待服务器时界面无反应）
-        function updateShotStatus(shotId, newStatus, newUrl) {
-            // A. 更新 ShotDetail 当前查看的数据
-            if (home_right.currentShotData && home_right.currentShotData.shotId === shotId) {
-                var tempShot = Object.assign({}, home_right.currentShotData);
-                tempShot.status = newStatus;
-                if (newUrl) tempShot.localImagePath = newUrl;
-                home_right.currentShotData = tempShot; // 触发绑定更新
-            }
-
-            // B. 更新 Storyboard 列表中的数据
-            if (home_right.currentProjectData && home_right.currentProjectData.storyboards) {
-                var proj = home_right.currentProjectData;
-                var list = proj.storyboards;
-                for (var i = 0; i < list.length; i++) {
-                    if (list[i].shotId === shotId) {
-                        list[i].status = newStatus;
-                        if (newUrl) list[i].localImagePath = newUrl;
-                        break;
-                    }
-                }
-                // 强制触发 QML 更新 (QML 对数组内部属性变化不敏感，需要重置引用)
-                home_right.currentProjectData = JSON.parse(JSON.stringify(proj));
-            }
+    function updateShotStatus(shotId, newStatus, newUrl) {
+        // A. 更新 ShotDetail 当前查看的数据
+        if (home_right.currentShotData && home_right.currentShotData.shotId === shotId) {
+            var tempShot = Object.assign({}, home_right.currentShotData);
+            tempShot.status = newStatus;
+            if (newUrl) tempShot.localImagePath = newUrl;
+            home_right.currentShotData = tempShot; // 触发绑定更新
         }
+
+        // B. 更新 Storyboard 列表中的数据
+        if (home_right.currentProjectData && home_right.currentProjectData.storyboards) {
+            var proj = home_right.currentProjectData;
+            var list = proj.storyboards;
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].shotId === shotId) {
+                    list[i].status = newStatus;
+                    if (newUrl) list[i].localImagePath = newUrl;
+                    break;
+                }
+            }
+            // 强制触发 QML 更新 (QML 对数组内部属性变化不敏感，需要重置引用)
+            home_right.currentProjectData = JSON.parse(JSON.stringify(proj));
+        }
+    }
 
     // 2. 加载遮罩 (放在 Loader 下面写，就会盖在 Loader 上面)
     Rectangle {
@@ -189,6 +198,32 @@ Rectangle {
 
             // 跳转页面
             home_right.currentProjectData = projectData;
+
+            // --- A. 数据清洗与补全 ---
+            var firstShotImage = "";
+            if (projectData.storyboards && projectData.storyboards.length > 0) {
+                // 获取第一张图的路径 (注意：可能是本地路径 file:///...)
+                firstShotImage = projectData.storyboards[0].localImagePath || "";
+            }
+            // 后端可能没传 colorCode 或格式化时间，前端补一下用于 Assets 展示
+            var newAsset = {
+                "id": projectData.id,
+                "name": projectData.name || "未命名故事",
+                "date": getCurrentDate(), // 获取当前时间字符串
+                "status": "completed",    // 刚生成完，状态是完成
+                "colorCode": getRandomColor(), // 随机给个封面色
+                "coverUrl": firstShotImage,
+                // 把完整数据也存着，预览时要用
+                "fullData": projectData
+            }
+            // --- B. 插入到列表头部 (最新的在最前) ---
+            // QML 数组需要重新赋值才能触发绑定更新
+            var tempList = home_right.globalProjectList
+            tempList.unshift(newAsset)
+            home_right.globalProjectList = tempList
+
+            console.log("数据已保存，当前资产总数:", home_right.globalProjectList.length)
+
             home_right.navigateTo("storyboard");
         }
 
@@ -207,6 +242,17 @@ Rectangle {
             // 5. 失败回来：隐藏遮罩
             home_right.isGenerating = false;
             console.error(msg);
+        }
+
+        function getCurrentDate() {
+            var date = new Date();
+            return date.getFullYear() + "-" + (date.getMonth() + 1).toString().padStart(2, '0') + "-" + date.getDate().toString().padStart(2, '0');
+        }
+
+        // 随机柔和颜色
+        function getRandomColor() {
+            var colors = ["#FFCDD2", "#BBDEFB", "#C8E6C9", "#E1BEE7", "#FFE0B2", "#D1C4E9"];
+            return colors[Math.floor(Math.random() * colors.length)];
         }
     }
 }
