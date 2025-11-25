@@ -7,6 +7,7 @@ Rectangle {
     // anchors.left: home_left.right
     // anchors.right: parent.right
     // anchors.bottom: parent.bottom
+    bottomRightRadius: 20
     color: "#FFFEFA"
 
     property string currentPage: "create"
@@ -124,6 +125,7 @@ Rectangle {
         anchors.fill: parent
         color: "#80FFFFFF" // 半透明白色
         visible: home_right.isGenerating // 由属性控制显示/隐藏
+        bottomRightRadius: 20
         z: 100 // 在最上层
 
         // 忙碌指示器（转圈圈动画）

@@ -8,6 +8,7 @@ Rectangle{
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
+    radius: 20
     color: "#F7F7F7"  // 白
 
     //窗口拖动及放大还原功能

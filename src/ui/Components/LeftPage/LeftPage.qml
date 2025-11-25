@@ -9,6 +9,7 @@ Rectangle{
     anchors.left: parent.left
     anchors.bottom: parent.bottom
     anchors.right: home_right.left
+    bottomLeftRadius: 20
     color: "#E9EEF6"  // 淡蓝
 
     // 属性

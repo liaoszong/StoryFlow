@@ -1,176 +1,171 @@
-// StoryboardPage.qml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
 Rectangle {
-    id: storyboardPage
-    // 属性
-    property string selectedStyle: ""
-    property string storyText: ""
+    id: previewPage
+    color: "transparent" // 复用 RightPage 的背景色
 
-    // 信号,传递给RightPage
-    signal styleSelected(string style)
-    signal generateStory()
+    // 接收从 RightPage 传来的项目数据
+    property var currentProjectData: null
+    // 存储后端生成的渲染配置文件路径
+    property string renderConfigPath: ""
+
+    // 信号
+    signal navigateTo(string page)
+
+    // 页面加载完成后，请求后端生成播放器需要的 JSON 配置
+    Component.onCompleted: {
+        if (currentProjectData) {
+            console.log("PreviewPage: 请求生成渲染配置...", currentProjectData.id)
+            // 调用 Backend 函数 (需要在 C++ 中实现 generateRenderConfig)
+            backendService.generateRenderConfig(currentProjectData)
+        }
+    }
+
+    // 监听后端信号
+    Connections {
+        target: backendService
+        function onRenderConfigReady(configPath) {
+            console.log("PreviewPage: 收到配置文件路径 ->", configPath)
+            previewPage.renderConfigPath = "file:///" + configPath
+
+            // 如果此时播放器组件未被注释，可以在这里将 source 传给它
+            // player.configSource = previewPage.renderConfigPath
+            // player.play()
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 40
-        spacing: 30
+        spacing: 20
 
-        Text {
-            text: "Storyboard"
-            font.pixelSize: 32
-            font.weight: Font.Bold
-            color: "#333333"
+        // 1. 标题区域
+        ColumnLayout {
             Layout.alignment: Qt.AlignHCenter
+            spacing: 5
+            Text {
+                text: "Preview"
+                font.pixelSize: 32
+                font.weight: Font.Bold
+                color: "#333333"
+                Layout.alignment: Qt.AlignHCenter
+            }
+            Text {
+                text: currentProjectData ? currentProjectData.name : "未命名项目"
+                font.pixelSize: 16
+                color: "#666666"
+                Layout.alignment: Qt.AlignHCenter
+            }
         }
 
-        Text {
-            text: "故事生成成功！这是您的分镜预览："
-            font.pixelSize: 16
-            color: "#666666"
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        // 三个分镜区域
-        RowLayout {
+        // 2. 播放器区域 (占位符)
+        Rectangle {
+            id: playerContainer
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 20
+            Layout.maximumWidth: 800 // 限制最大宽度，保持 16:9 比例更佳
+            Layout.alignment: Qt.AlignHCenter
 
-            // 分镜1
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: "#E3F2FD"
-                radius: 12
-                border.color: "#BBDEFB"
-                border.width: 2
+            color: "#000000"
+            radius: 12
+            clip: true
 
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 10
+            // --- 实际播放器组件 (已注释) ---
+            /*
+            StoryPlayer {
+                id: player
+                anchors.fill: parent
+                // 将后端生成的 json 路径传给播放器
+                configSource: previewPage.renderConfigPath
 
-                    Text {
-                        text: "🎬"
-                        font.pixelSize: 32
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
+                onPlaybackFinished: {
+                    console.log("播放结束")
+                }
+            }
+            */
 
-                    Text {
-                        text: "分镜 1"
-                        font.pixelSize: 16
-                        font.weight: Font.Medium
-                        color: "#1976D2"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
+            // --- 临时占位显示 ---
+            Column {
+                anchors.centerIn: parent
+                spacing: 15
+                visible: true // 当播放器被注释时显示这个
 
-                    Text {
-                        text: "开场场景"
-                        font.pixelSize: 14
-                        color: "#666666"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
+                Text {
+                    text: "▶️"
+                    font.pixelSize: 64
+                    color: "#666666"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                Text {
+                    text: previewPage.renderConfigPath ? "渲染配置已就绪\n" + previewPage.renderConfigPath : "正在准备渲染数据..."
+                    color: "#999999"
+                    font.pixelSize: 14
+                    horizontalAlignment: Text.AlignHCenter
                 }
             }
 
-            // 分镜2
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: "#F3E5F5"
-                radius: 12
-                border.color: "#E1BEE7"
-                border.width: 2
-
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 10
-
-                    Text {
-                        text: "⚔️"
-                        font.pixelSize: 32
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-
-                    Text {
-                        text: "分镜 2"
-                        font.pixelSize: 16
-                        font.weight: Font.Medium
-                        color: "#7B1FA2"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-
-                    Text {
-                        text: "冒险开始"
-                        font.pixelSize: 14
-                        color: "#666666"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                }
-            }
-
-            // 分镜3
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: "#E8F5E8"
-                radius: 12
-                border.color: "#C8E6C9"
-                border.width: 2
-
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 10
-
-                    Text {
-                        text: "🏆"
-                        font.pixelSize: 32
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-
-                    Text {
-                        text: "分镜 3"
-                        font.pixelSize: 16
-                        font.weight: Font.Medium
-                        color: "#388E3C"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-
-                    Text {
-                        text: "胜利时刻"
-                        font.pixelSize: 14
-                        color: "#666666"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                }
+            // 加载指示器
+            BusyIndicator {
+                anchors.centerIn: parent
+                running: previewPage.renderConfigPath === ""
+                visible: running
             }
         }
 
-        // 返回按钮
-        Button {
-            text: "返回创建页面"
+        // 3. 底部控制栏
+        RowLayout {
+            spacing: 20
             Layout.alignment: Qt.AlignHCenter
+            Layout.bottomMargin: 10
 
-            background: Rectangle {
-                color: parent.down ? "#E0E0E0" :
-                       parent.hovered ? "#F5F5F5" : "#FAFAFA"
-                border.color: "#E0E0E0"
-                border.width: 1
-                radius: 8
+            // 导出视频按钮
+            Button {
+                text: "导出成品视频 (Export)"
+
+                background: Rectangle {
+                    color: parent.down ? "#1565C0" : (parent.hovered ? "#1565C0" : "#1976D2")
+                    radius: 8
+                }
+
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 16
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                onClicked: {
+                    console.log("Exporting video for:", currentProjectData.id)
+                    // 这里未来可以调用 backendService.exportVideo(...)
+                }
             }
 
-            contentItem: Text {
-                text: parent.text
-                font.pixelSize: 14
-                color: "#666666"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+            // 返回按钮
+            Button {
+                text: "返回资产库"
 
-            onClicked: {
-                home_right.navigateTo("create")
+                background: Rectangle {
+                    color: parent.down ? "#E0E0E0" : (parent.hovered ? "#F5F5F5" : "#FAFAFA")
+                    border.color: "#E0E0E0"
+                    radius: 8
+                }
+
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 16
+                    color: "#666666"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                onClicked: {
+                    // 通常预览页是从 Assets 或 Storyboard 来的，这里默认回 Assets，或者根据需求改
+                    previewPage.navigateTo("assets")
+                }
             }
         }
     }

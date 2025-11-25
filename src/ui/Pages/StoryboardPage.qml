@@ -5,6 +5,7 @@ import QtQuick.Layouts
 
 Rectangle {
     id: storyboardPage
+    color: "transparent"
     // 属性
     property string selectedStyle: ""
     property string storyText: ""
@@ -180,7 +181,7 @@ Rectangle {
                 }
 
                 onClicked: {
-                    storyboardPage.navigateTo("create", null)
+                    storyboardPage.navigateTo("preview", null)
                 }
             }
             // 返回按钮
