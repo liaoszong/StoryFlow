@@ -4,7 +4,8 @@ import QtQuick.Layouts
 
 Rectangle {
     id: previewPage
-    color: "transparent" // 复用 RightPage 的背景色
+    color: "#F0F2F5"
+    bottomRightRadius: 20
 
     // 接收从 RightPage 传来的项目数据
     property var currentProjectData: null

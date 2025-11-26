@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QTimer>
 
 class Backend : public QObject
 {
@@ -23,14 +24,25 @@ public:
 
 signals:
     void storyCreated(QVariantMap projectData);
+    // 进度信号 (0-100)
+    void storyProgress(int progress, QString status);
     void errorOccurred(QString message);
     // // 单张图片生成成功后通知 QML
     void imageRegenerated(QVariantMap shotData);
     // // 视频生成完成并返回视频 URL
     // void videoGenerationFinished(QVariantMap projectData);
 
+private slots:
+    // 轮询状态的槽函数
+    void checkTaskStatus();
+
 private:
     QNetworkAccessManager *manager; // 专门用来发网络请求的工具
+
+    // 轮询相关成员
+    QTimer *pollTimer;      // 定时器
+    QString currentTaskId;  // 当前正在追踪的任务ID
+    int retryCount;         // 重试计数器
 };
 
 #endif

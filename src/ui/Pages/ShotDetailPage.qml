@@ -4,7 +4,8 @@ import QtQuick.Layouts
 
 Rectangle {
     id: shotDetailPage
-    color: "transparent" // 背景透明，复用 RightPage 的背景
+    color: "#F0F2F5"
+    bottomRightRadius: 20
 
     // 接收从 Storyboard 传来的单个分镜数据
     property var shotData: null

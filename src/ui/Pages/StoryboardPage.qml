@@ -5,7 +5,8 @@ import QtQuick.Layouts
 
 Rectangle {
     id: storyboardPage
-    color: "transparent"
+    color: "#F0F2F5"
+    bottomRightRadius: 20
     // 属性
     property string selectedStyle: ""
     property string storyText: ""

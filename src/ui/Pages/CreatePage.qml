@@ -4,7 +4,9 @@ import QtQuick.Layouts
 
 Rectangle {
     id: createPage
-    color: "transparent"
+    color: "#F0F2F5"
+    bottomRightRadius: 20
+
 
     // 属性
     property string selectedStyle: ""

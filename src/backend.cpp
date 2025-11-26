@@ -1,9 +1,18 @@
 #include "Backend.h"
 #include <QDebug>
+#include <QUrlQuery>
+
+static const QString BASE_URL = "http://127.0.0.1:5000";
 
 Backend::Backend(QObject *parent) : QObject(parent)
 {
     manager = new QNetworkAccessManager(this);
+
+    // 初始化定时器
+    pollTimer = new QTimer(this);
+    pollTimer->setInterval(2000); // 设置轮询间隔：2秒
+    // 连接定时器超时信号到 checkTaskStatus 槽函数
+    connect(pollTimer, &QTimer::timeout, this, &Backend::checkTaskStatus);
 }
 
 void Backend::createStory(const QString &prompt, const QString &style)
@@ -18,46 +27,112 @@ void Backend::createStory(const QString &prompt, const QString &style)
 
     // 2. 设置 URL 和 Header
     // 服务器地址
-    QUrl url("http://127.0.0.1:5000/api/create_story");
+    QUrl url(BASE_URL + "/api/create_story");
    // QUrl url("http://115.190.232.13");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    //超时限制
-    request.setTransferTimeout(30000);
-
     // 3. 发送请求（POST）
     QNetworkReply *reply = manager->post(request, data);
 
-    // 4. 等待回应
+    // 4. 处理初步响应（获取 TaskID）
     connect(reply, &QNetworkReply::finished, [this, reply]() {
         if (reply->error() == QNetworkReply::NoError) {
-            // --- 成功接收数据 ---
-
-            // 1. 先把数据全部读出来存到一个变量里
-            // 数据读一次就没了，不能读第二次，所以必须先存起来
             QByteArray responseData = reply->readAll();
-
-            // 在这里打印
-            // 在 Qt Creator 下方的 "Application Output" 窗口就能看到完整的 JSON 字符串
-            qDebug() << "========================================";
-            qDebug() << "【后端返回的原始数据】:" << responseData;
-            qDebug() << "========================================";
-
-            // 2. 再用刚才存好的 responseData 去解析
             QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
             QJsonObject jsonObj = jsonDoc.object();
-            // 假设后端返回的结构里有一个 "payload" 字段装着数据
-            // 这里转换成 QVariantMap 方便 QML 使用
-            QVariantMap resultMap = jsonObj["payload"].toObject().toVariantMap();
 
-            // 触发信号
-            emit storyCreated(resultMap);
+            // 解析服务器返回的状态
+            QString type = jsonObj["type"].toString();
+
+            if (type == "ACTION_TYPE_PENDING") {
+                // 获取 TaskID
+                QJsonObject payload = jsonObj["payload"].toObject();
+                currentTaskId = payload["taskId"].toString();
+
+                qDebug() << "任务提交成功，TaskID:" << currentTaskId;
+
+                // 启动轮询定时器
+                if (!currentTaskId.isEmpty()) {
+                    pollTimer->start();
+                    emit storyProgress(0, "任务排队中...");
+                }
+            } else {
+                emit errorOccurred("服务器返回了未知的任务类型: " + type);
+            }
         } else {
-            // --- 出错了 ---
-            emit errorOccurred(reply->errorString());
+            emit errorOccurred("网络请求失败: " + reply->errorString());
         }
-        reply->deleteLater(); // 清理内存
+        reply->deleteLater();
+    });
+}
+
+// 轮询状态的核心逻辑
+void Backend::checkTaskStatus()
+{
+    if (currentTaskId.isEmpty()) {
+        pollTimer->stop();
+        return;
+    }
+
+    // 1. 拼接查询 URL (GET)
+    QUrl url(BASE_URL + "/api/check_status");
+    QUrlQuery query;
+    query.addQueryItem("id", currentTaskId);
+    url.setQuery(query);
+
+    QNetworkRequest request(url);
+
+    // 2. 发送查询请求
+    QNetworkReply *reply = manager->get(request);
+
+    connect(reply, &QNetworkReply::finished, [this, reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray responseData = reply->readAll();
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+            QJsonObject jsonObj = jsonDoc.object();
+
+            QString type = jsonObj["type"].toString();
+            QJsonObject payload = jsonObj["payload"].toObject();
+
+            if (type == "ACTION_TYPE_PENDING") {
+                // 仍在排队
+                int progress = payload["progress"].toInt();
+                qDebug() << "排队中..." << progress << "%";
+                emit storyProgress(progress, "排队中...");
+
+            } else if (type == "ACTION_TYPE_PROCESSING") {
+                // 正在生成
+                int progress = payload["progress"].toInt();
+                qDebug() << "生成中..." << progress << "%";
+                emit storyProgress(progress, "正在生成故事分镜...");
+
+            } else if (type == "ACTION_TYPE_SUCCESS") {
+                // --- 成功完成 ---
+                qDebug() << "任务完成！收到最终数据。";
+
+                // 1. 停止轮询
+                pollTimer->stop();
+                currentTaskId = "";
+
+                // 2. 发送成功信号，将 payload (包含 storyboards) 传给前端
+                QVariantMap resultMap = payload.toVariantMap();
+                emit storyCreated(resultMap);
+
+                // 3. 发送 100% 进度让进度条消失（可选）
+                emit storyProgress(100, "完成");
+
+            } else {
+                // 未知状态或错误
+                pollTimer->stop();
+                emit errorOccurred("任务状态异常: " + jsonObj["message"].toString());
+            }
+        } else {
+            // 网络错误
+            pollTimer->stop();
+            emit errorOccurred("轮询请求失败: " + reply->errorString());
+        }
+        reply->deleteLater();
     });
 }
 
@@ -74,7 +149,7 @@ void Backend::regenerateImage(const QString &projectId, const QString &shotId, c
     QByteArray data = doc.toJson();
 
     // 2. 设置 URL
-    QUrl url("http://127.0.0.1:5000/api/regenerate_image");
+    QUrl url(BASE_URL + "/api/regenerate_image");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setTransferTimeout(30000); // 30s timeout
@@ -93,11 +168,14 @@ void Backend::regenerateImage(const QString &projectId, const QString &shotId, c
             QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
             QJsonObject jsonObj = jsonDoc.object();
 
-            // 预期 payload 返回的是更新后的 shotData (文档格式 4)
-            if (jsonObj.contains("payload")) {
-                QVariantMap resultMap = jsonObj["payload"].toObject().toVariantMap();
-                // 发射信号通知 QML
-                emit imageRegenerated(resultMap);
+            // 对应 app.py 的 ACTION_TYPE_SUCCESS
+            if (jsonObj["type"].toString() == "ACTION_TYPE_SUCCESS") {
+                if (jsonObj.contains("payload")) {
+                    QVariantMap resultMap = jsonObj["payload"].toObject().toVariantMap();
+                    emit imageRegenerated(resultMap);
+                }
+            } else {
+                emit errorOccurred("图片生成失败");
             }
         } else {
             qDebug() << "Regenerate Error:" << reply->errorString();

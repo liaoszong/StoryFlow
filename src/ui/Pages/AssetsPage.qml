@@ -11,6 +11,8 @@ Rectangle {
     // 1.保存所有项目 (Array),等待 RightPage 注入数据
     property var allProjectsList: []
 
+    signal navigateTo(string page, var data)
+
     // 2.给 GridView 用 (ListModel)
     ListModel {
         id: projectModel
@@ -171,7 +173,7 @@ Rectangle {
                         // 通过 originalIndex 找到原始的完整数据
                         var fullData = assetsPage.allProjectsList[originalIndex].fullData
                         // 发送信号（注意：需要 assetsPage 定义 signal navigateTo(page, payload)）
-                        // assetsPage.navigateTo("preview", fullData)
+                        assetsPage.navigateTo("storyboard", fullData)
                     }
                 }
 
