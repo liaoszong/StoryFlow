@@ -1,0 +1,4 @@
+The process cannot access the file because it is being used by another process.
+The system cannot find the file C:\Users\30636\AppData\Local\Temp\__conda_tmp_19281.txt.
+
+ERROR conda.cli.main_run:execute(127): `conda run python D:\StoryFlow\src\local_ai_model_services\api_text_to_audio.py` failed. (See above for error)
