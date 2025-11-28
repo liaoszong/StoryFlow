@@ -2,102 +2,126 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+/**
+ * 分镜详情编辑页面
+ * 用于编辑单个分镜的标题、提示词、旁白和转场效果
+ */
 Rectangle {
     id: shotDetailPage
-    color: "#F0F2F5"
-    bottomRightRadius: 20
+    color: "#F8FAFC"
+    bottomRightRadius: 16
 
-    // 接收数据
-    property var shotData: null
-    property string projectId: ""
-    property string selec_style: ""
+    // ==================== 属性定义 ====================
+    property var shotData: null         // 分镜数据
+    property string projectId: ""       // 项目 ID
+    property string selec_style: ""     // 选中的风格
 
-    // 信号
+    // ==================== 信号定义 ====================
     signal navigateTo(string page)
 
-    // 转场选项
+    // 转场效果选项
     readonly property var kTransitions: [
         { label: "Ken Burns (镜头推拉)", value: "kenBurns" },
         { label: "Crossfade (淡入淡出)", value: "crossfade" },
         { label: "Volume Mix (音量混合)", value: "volumeMix" }
     ]
 
-    // 数据回显
+    // 数据变化时回填表单
     onShotDataChanged: {
         if (shotData) {
             titleField.text = shotData.sceneTitle || ""
             promptArea.text = shotData.prompt || ""
             narrationArea.text = shotData.narration || ""
 
+            // 设置转场下拉框
             var currentVal = shotData.transition || "kenBurns"
             var idx = 0
-            for(var i=0; i<kTransitions.length; i++) {
-                if(kTransitions[i].value === currentVal) { idx = i; break; }
+            for (var i = 0; i < kTransitions.length; i++) {
+                if (kTransitions[i].value === currentVal) {
+                    idx = i
+                    break
+                }
             }
             transitionCombo.currentIndex = idx
         }
     }
 
-    // 顶部栏
+    // ==================== 顶部导航栏 ====================
     RowLayout {
         id: headerBar
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.margins: 30
-        spacing: 15
+        anchors.margins: 24
+        spacing: 16
 
         // 返回按钮
         Button {
             id: backBtn
-            text: "← 返回分镜"
+            text: "\u2190 返回分镜"
+
             background: Rectangle {
-                // 只有悬停时才变深一点灰，平时偏白
-                color: backBtn.down ? "#D0D0D0" : (backBtn.hovered ? "#E0E0E0" : "#FAFAFA")
-                border.color: "#CCCCCC"
+                color: {
+                    if (backBtn.down) return "#E2E8F0"
+                    if (backBtn.hovered) return "#F1F5F9"
+                    return "#FFFFFF"
+                }
+                border.color: "#E2E8F0"
                 border.width: 1
                 radius: 8
             }
+
             contentItem: Text {
                 text: parent.text
-                color: "#666666"
-                font.pixelSize: 14
+                color: "#475569"
+                font.pixelSize: 13
+                font.weight: Font.Medium
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }
+
             onClicked: {
                 saveCurrentEdits()
                 shotDetailPage.navigateTo("storyboard")
             }
         }
 
+        // 页面标题
         Text {
             text: "编辑分镜详情"
-            font.pixelSize: 20
+            font.pixelSize: 18
             font.weight: Font.Bold
-            color: "#333333"
+            color: "#1E293B"
         }
 
-        Item { Layout.fillWidth: true } // 占位
+        Item { Layout.fillWidth: true }
 
         // 状态标签
         Rectangle {
             visible: !!shotData
-            width: 100
+            width: statusRow.width + 16
             height: 28
             radius: 14
             color: getStatusColor(shotData ? shotData.status : "")
+
             Row {
+                id: statusRow
                 anchors.centerIn: parent
                 spacing: 6
+
+                // 状态指示点
                 Rectangle {
-                    width: 8; height: 8; radius: 4
+                    width: 8
+                    height: 8
+                    radius: 4
                     color: getStatusTextColor(shotData ? shotData.status : "")
                     anchors.verticalCenter: parent.verticalCenter
                 }
+
+                // 状态文字
                 Text {
-                    text: shotData ? (shotData.status || "").toUpperCase() : ""
-                    font.pixelSize: 12
+                    text: getStatusText(shotData ? shotData.status : "")
+                    font.pixelSize: 11
                     font.weight: Font.Bold
                     color: getStatusTextColor(shotData ? shotData.status : "")
                     anchors.verticalCenter: parent.verticalCenter
@@ -106,27 +130,28 @@ Rectangle {
         }
     }
 
-    // 主内容区
+    // ==================== 主内容区域 ====================
     RowLayout {
         anchors.top: headerBar.bottom
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.margins: 30
+        anchors.margins: 24
         anchors.topMargin: 20
-        spacing: 30
+        spacing: 24
 
-        // 左侧图片
+        // 左侧：图片预览
         Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.preferredWidth: 4
-            color: "#F5F5F5"
+            Layout.preferredWidth: 5
+            color: "#FFFFFF"
             radius: 12
-            border.color: "#E0E0E0"
             border.width: 1
+            border.color: "#E2E8F0"
             clip: true
 
+            // 预览图片
             Image {
                 anchors.fill: parent
                 anchors.margins: 2
@@ -136,26 +161,44 @@ Rectangle {
                 cache: false
                 asynchronous: true
             }
+
+            // 占位符
             Column {
                 anchors.centerIn: parent
                 visible: !(shotData && shotData.localImagePath)
-                spacing: 15
-                Text { text: "📷"; font.pixelSize: 48; anchors.horizontalCenter: parent.horizontalCenter }
-                Text { text: "等待生成图像..."; color: "#999999"; font.pixelSize: 14 }
+                spacing: 12
+
+                Text {
+                    text: "\uD83D\uDCF7"
+                    font.pixelSize: 48
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                Text {
+                    text: "等待生成图像..."
+                    color: "#94A3B8"
+                    font.pixelSize: 14
+                }
             }
+
+            // 生成中遮罩
             Rectangle {
                 anchors.fill: parent
                 color: "#80FFFFFF"
                 visible: shotData && shotData.status === "generating"
-                BusyIndicator { anchors.centerIn: parent }
+                radius: parent.radius
+
+                BusyIndicator {
+                    anchors.centerIn: parent
+                }
             }
         }
 
-        // 右侧表单
+        // 右侧：编辑表单
         Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.preferredWidth: 3
+            Layout.preferredWidth: 4
             color: "transparent"
 
             ScrollView {
@@ -167,110 +210,169 @@ Rectangle {
                     width: parent.width
                     spacing: 20
 
-                    // 1. 标题
+                    // 场景标题
                     ColumnLayout {
-                        width: parent.width
+                        Layout.fillWidth: true
                         spacing: 8
-                        Text { text: "场景标题"; color: "#666666"; font.pixelSize: 14; font.weight: Font.Bold }
+
+                        Text {
+                            text: "场景标题"
+                            color: "#475569"
+                            font.pixelSize: 13
+                            font.weight: Font.DemiBold
+                        }
+
                         TextField {
                             id: titleField
                             Layout.fillWidth: true
-                            font.pixelSize: 16
+                            Layout.preferredHeight: 44
+                            font.pixelSize: 14
+
                             background: Rectangle {
                                 color: "#FFFFFF"
-                                border.color: titleField.activeFocus ? "#1976D2" : "#E0E0E0"
+                                border.color: titleField.activeFocus ? "#6366F1" : "#E2E8F0"
+                                border.width: 1
                                 radius: 8
                             }
                         }
                     }
 
-                    // 2. 提示词
+                    // 画面描述
                     ColumnLayout {
-                        width: parent.width
+                        Layout.fillWidth: true
                         spacing: 8
-                        Text { text: "画面描述 (Prompt)"; color: "#666666"; font.pixelSize: 14; font.weight: Font.Bold }
+
+                        Text {
+                            text: "画面描述 (Prompt)"
+                            color: "#475569"
+                            font.pixelSize: 13
+                            font.weight: Font.DemiBold
+                        }
+
                         TextArea {
                             id: promptArea
                             Layout.fillWidth: true
                             Layout.preferredHeight: 100
                             font.pixelSize: 14
                             wrapMode: Text.WordWrap
+
                             background: Rectangle {
                                 color: "#FFFFFF"
-                                border.color: promptArea.activeFocus ? "#1976D2" : "#E0E0E0"
+                                border.color: promptArea.activeFocus ? "#6366F1" : "#E2E8F0"
+                                border.width: 1
                                 radius: 8
                             }
                         }
                     }
 
-                    // 3. 旁白
+                    // 旁白配音
                     ColumnLayout {
-                        width: parent.width
+                        Layout.fillWidth: true
                         spacing: 8
-                        Text { text: "旁白配音 (Narration)"; color: "#666666"; font.pixelSize: 14; font.weight: Font.Bold }
+
+                        Text {
+                            text: "旁白配音"
+                            color: "#475569"
+                            font.pixelSize: 13
+                            font.weight: Font.DemiBold
+                        }
+
                         TextArea {
                             id: narrationArea
                             Layout.fillWidth: true
                             Layout.preferredHeight: 80
                             font.pixelSize: 14
                             wrapMode: Text.WordWrap
+
                             background: Rectangle {
                                 color: "#FFFFFF"
-                                border.color: narrationArea.activeFocus ? "#1976D2" : "#E0E0E0"
+                                border.color: narrationArea.activeFocus ? "#6366F1" : "#E2E8F0"
+                                border.width: 1
                                 radius: 8
                             }
                         }
                     }
 
-                    // 4. 转场
+                    // 转场效果
                     ColumnLayout {
-                        width: parent.width
+                        Layout.fillWidth: true
                         spacing: 8
-                        Text { text: "转场效果"; color: "#666666"; font.pixelSize: 14; font.weight: Font.Bold }
+
+                        Text {
+                            text: "转场效果"
+                            color: "#475569"
+                            font.pixelSize: 13
+                            font.weight: Font.DemiBold
+                        }
+
                         ComboBox {
                             id: transitionCombo
                             Layout.fillWidth: true
+                            Layout.preferredHeight: 44
                             model: kTransitions.map(t => t.label)
+
+                            background: Rectangle {
+                                color: "#FFFFFF"
+                                border.color: "#E2E8F0"
+                                border.width: 1
+                                radius: 8
+                            }
                         }
                     }
 
-                    Item { Layout.preferredHeight: 20 }
+                    Item { Layout.preferredHeight: 12 }
 
-                    // 5. 重新生成按钮 (蓝色)
+                    // 重新生成按钮
                     Button {
                         id: generateBtn
                         text: "重新生成图片"
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 45
+                        Layout.preferredHeight: 48
                         enabled: shotData && shotData.status !== "generating"
 
                         background: Rectangle {
-                            // 蓝色按钮：默认蓝，悬停/按下变深蓝，禁用变灰
-                            color: {
-                                if (!generateBtn.enabled) return "#CCCCCC"; // 禁用：灰
-                                if (generateBtn.down) return "#0D47A1";    // 按下：深蓝
-                                if (generateBtn.hovered) return "#1565C0"; // 悬停：中深蓝 (绝对不是白色)
-                                return "#1976D2";                           // 默认：亮蓝
+                            radius: 10
+
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop {
+                                    position: 0.0
+                                    color: generateBtn.enabled ? (generateBtn.down ? "#4F46E5" : "#6366F1") : "#CBD5E1"
+                                }
+                                GradientStop {
+                                    position: 1.0
+                                    color: generateBtn.enabled ? (generateBtn.down ? "#7C3AED" : "#8B5CF6") : "#CBD5E1"
+                                }
                             }
-                            radius: 8
+
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: parent.radius
+                                color: "#FFFFFF"
+                                opacity: generateBtn.hovered && generateBtn.enabled ? 0.1 : 0
+                            }
                         }
+
                         contentItem: Text {
                             text: parent.text
                             color: "white"
-                            font.pixelSize: 16
-                            font.weight: Font.Bold
+                            font.pixelSize: 15
+                            font.weight: Font.DemiBold
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                         }
+
                         onClicked: {
                             if (shotData) {
                                 saveCurrentEdits()
                                 var projId = shotDetailPage.projectId || "temp_id"
                                 var style = shotDetailPage.selec_style || "animation"
-                                // UI 立即反馈
+
+                                // 更新状态为生成中
                                 var temp = Object.assign({}, shotData)
                                 temp.status = "generating"
                                 shotData = temp
+
                                 storyViewModel.regenerateImage(projId, shotData.shotId, promptArea.text, style)
                             }
                         }
@@ -280,18 +382,41 @@ Rectangle {
         }
     }
 
+    // ==================== 辅助函数 ====================
+
+    // 保存当前编辑内容
     function saveCurrentEdits() {
-        if (!shotData) return;
+        if (!shotData) return
         shotData.sceneTitle = titleField.text
         shotData.prompt = promptArea.text
         shotData.narration = narrationArea.text
         shotData.transition = kTransitions[transitionCombo.currentIndex].value
     }
 
+    // 获取状态背景色
     function getStatusColor(status) {
-        switch(status) { case "generated": return "#E8F5E9"; case "generating": return "#E3F2FD"; default: return "#FFF3E0"; }
+        switch(status) {
+            case "generated": return "#DCFCE7"
+            case "generating": return "#DBEAFE"
+            default: return "#FEF3C7"
+        }
     }
+
+    // 获取状态文字颜色
     function getStatusTextColor(status) {
-        switch(status) { case "generated": return "#2E7D32"; case "generating": return "#1565C0"; default: return "#EF6C00"; }
+        switch(status) {
+            case "generated": return "#166534"
+            case "generating": return "#1D4ED8"
+            default: return "#B45309"
+        }
+    }
+
+    // 获取状态显示文字
+    function getStatusText(status) {
+        switch(status) {
+            case "generated": return "已完成"
+            case "generating": return "生成中"
+            default: return "等待中"
+        }
     }
 }

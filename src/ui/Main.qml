@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Window
+import QtQuick.Effects
 import "./Components"
 
 Window {
@@ -22,15 +23,27 @@ Window {
     Rectangle {
         id: backgroundRect
         anchors.fill: parent
-        radius: 20
-        color: "#F9FAFB"
+        radius: 16
+        color: "#FFFFFF"
+
+        // 微妙的边框
         border.width: 1
-        border.color: "#E0E0E0"
+        border.color: Qt.rgba(0, 0, 0, 0.08)
+
+        // 内阴影效果模拟
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            color: "transparent"
+            border.width: 1
+            border.color: Qt.rgba(255, 255, 255, 0.8)
+            z: -1
+        }
 
         // 顶部栏
         TopPage {
             id: home_top
-            height: 60
+            height: 56
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
@@ -39,7 +52,7 @@ Window {
         // 左侧导航
         LeftPage {
             id: home_left
-            width: 240
+            width: 220
             anchors.top: home_top.bottom
             anchors.left: parent.left
             anchors.bottom: parent.bottom
@@ -61,10 +74,6 @@ Window {
             currentPage: mainWindow.currentPage
             selectedStyle: mainWindow.selectedStyle
             storyText: mainWindow.storyText
-
-            // 【MVVM 修正】删除 onStyleSelected 和 onGenerateStory
-            // 因为 RightPage 已经删除了这些信号，保留会导致 crash。
-            // 现在的逻辑是：子页面直接调 ViewModel，生成成功后 ViewModel 通知 RightPage 跳转。
 
             // 仅保留导航信号
             onNavigateTo: function(page) {

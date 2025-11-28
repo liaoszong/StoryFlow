@@ -21,6 +21,25 @@ void AssetsViewModel::setProjectList(const QVariantList &list) {
     emit projectListChanged();
 }
 
+void AssetsViewModel::deleteProject(const QString &projectId)
+{
+    QJsonObject payload;
+    payload["id"] = projectId;
+
+    // 乐观更新：先在本地 UI 删掉，让用户感觉很快，然后再发请求
+    // 采用发请求成功后刷新列表的方式
+
+    m_apiService->post("/api/assets/delete", payload,
+                       [this](bool success, const QJsonObject &resp) {
+                           if (success && resp["type"].toString() == "ACTION_TYPE_SUCCESS") {
+                               // 删除成功后，重新拉取列表
+                               loadAssets();
+                           } else {
+                               emit errorOccurred("删除失败");
+                           }
+                       });
+}
+
 void AssetsViewModel::loadAssets()
 {
     if (m_isLoading) return;

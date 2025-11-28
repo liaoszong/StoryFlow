@@ -1,25 +1,40 @@
 import QtQuick
 import QtQuick.Controls
 
-// 顶部栏：带页面名称+右侧菜单（高度60px）
-Rectangle{
+/**
+ * 顶部导航栏组件
+ * - 包含应用 Logo 和标题
+ * - 窗口拖拽移动功能
+ * - 最小化、最大化、关闭按钮
+ */
+Rectangle {
     id: home_top
-    height: 60
+    height: 56
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
-    radius: 20
-    color: "#F7F7F7"  // 白
+    topLeftRadius: 16
+    topRightRadius: 16
+    color: "#FFFFFF"
 
-    //窗口拖动及放大还原功能
+    // 底部分割线
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: 1
+        color: "#F0F0F0"
+    }
+
+    // 窗口拖动区域
     MouseArea {
         anchors.fill: parent
 
         onPressed: function(mouse) {
-            // 开始系统级窗口移动
             mainWindow.startSystemMove()
         }
-        // 双击最大化/还原
+
+        // 双击切换最大化/还原
         onDoubleClicked: {
             if (mainWindow.visibility === Window.Maximized) {
                 mainWindow.showNormal()
@@ -29,75 +44,96 @@ Rectangle{
         }
     }
 
-    // Logo
-    Text {
-        id: appTitle
-        text: "StoryFlow"
-        font.pixelSize: 20
-        font.weight: Font.Bold
-        color: "#333333"
+    // Logo 区域
+    Row {
         anchors.verticalCenter: parent.verticalCenter
-        anchors.top: parent.top
         anchors.left: parent.left
-        anchors.topMargin: 20
-        anchors.leftMargin: 0.02*mainWindow.width
+        anchors.leftMargin: 24
+        spacing: 10
+
+        // Logo 图标 - 渐变色背景
+        Rectangle {
+            width: 32
+            height: 32
+            radius: 8
+            anchors.verticalCenter: parent.verticalCenter
+
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#667EEA" }
+                GradientStop { position: 1.0; color: "#764BA2" }
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: "S"
+                font.pixelSize: 18
+                font.weight: Font.Bold
+                color: "#FFFFFF"
+            }
+        }
+
+        // 应用标题
+        Text {
+            id: appTitle
+            text: "StoryFlow"
+            font.pixelSize: 18
+            font.weight: Font.DemiBold
+            color: "#1A1A2E"
+            anchors.verticalCenter: parent.verticalCenter
+        }
     }
 
-
-    // 窗口控制按钮 - 放在右上角
+    // 窗口控制按钮组
     Row {
         anchors.right: parent.right
-        anchors.rightMargin: 0.02*mainWindow.width
+        anchors.rightMargin: 16
         anchors.verticalCenter: parent.verticalCenter
-        spacing: 15
+        spacing: 4
 
         // 最小化按钮
         Rectangle {
             id: minBtn
-            width: 30
-            height: 30
-            radius: 3
-            color: "transparent"
-            border.color: "transparent" // 默认无边框
-            border.width: 1
+            width: 36
+            height: 36
+            radius: 8
+            color: minMouseArea.containsMouse ? "#F3F4F6" : "transparent"
 
             Image {
-                id: minImg
                 anchors.centerIn: parent
                 source: "/img/Resources/img/minus_sign.png"
-                sourceSize: Qt.size(16, 16)
+                sourceSize: Qt.size(14, 14)
+                opacity: minMouseArea.containsMouse ? 0.8 : 0.5
             }
 
             MouseArea {
+                id: minMouseArea
                 anchors.fill: parent
                 hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
                 onClicked: mainWindow.showMinimized()
-                onEntered: {
-                    minBtn.border.color = "#E7E7E7" // 鼠标悬停时显示淡灰色边框
-                }
-                onExited: {
-                    minBtn.border.color = "transparent" // 鼠标离开时隐藏边框
-                }
             }
         }
-        // 全屏或窗口
+
+        // 最大化/还原按钮
         Rectangle {
-            id: drec
-            width: 30
-            height: 30
-            color: "transparent"
-            radius: 3
-            border.color: "transparent" // 默认无边框
-            border.width: 1
+            id: maxBtn
+            width: 36
+            height: 36
+            radius: 8
+            color: maxMouseArea.containsMouse ? "#F3F4F6" : "transparent"
+
             Image {
-                id: dsquare
                 anchors.centerIn: parent
                 source: "/img/Resources/img/Double_square.png"
-                sourceSize: Qt.size(16, 16)
+                sourceSize: Qt.size(14, 14)
+                opacity: maxMouseArea.containsMouse ? 0.8 : 0.5
             }
+
             MouseArea {
+                id: maxMouseArea
                 anchors.fill: parent
                 hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
                 onClicked: {
                     if (mainWindow.visibility === Window.Maximized) {
                         mainWindow.showNormal()
@@ -105,41 +141,30 @@ Rectangle{
                         mainWindow.showMaximized()
                     }
                 }
-                onEntered: {
-                    parent.border.color = "#E7E7E7"
-                }
-                onExited: {
-                    parent.border.color = "transparent"
-                }
             }
         }
 
         // 关闭按钮
         Rectangle {
-            id: closerec
-            width: 30
-            height: 30
-            color: "transparent"
-            radius: 3
-            border.color: "transparent" // 默认无边框
-            border.width: 1
+            id: closeBtn
+            width: 36
+            height: 36
+            radius: 8
+            color: closeMouseArea.containsMouse ? "#FEE2E2" : "transparent"
 
             Image {
-                id: closeImg
                 anchors.centerIn: parent
                 source: "/img/Resources/img/multiplication_sign.png"
-                sourceSize: Qt.size(16, 16)
+                sourceSize: Qt.size(14, 14)
+                opacity: closeMouseArea.containsMouse ? 1.0 : 0.5
             }
+
             MouseArea {
+                id: closeMouseArea
                 anchors.fill: parent
                 hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
                 onClicked: mainWindow.close()
-                onEntered: {
-                    parent.border.color = "#E81123"
-                }
-                onExited: {
-                    parent.border.color = "transparent"
-                }
             }
         }
     }

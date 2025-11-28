@@ -36,6 +36,7 @@ qt_add_qml_module(appStoryFlow
         SOURCES src/core/net/apiservice.h src/core/net/apiservice.cpp
         SOURCES src/core/viewmodel/storyviewmodel.h src/core/viewmodel/storyviewmodel.cpp
         SOURCES src/core/viewmodel/assetsviewmodel.h src/core/viewmodel/assetsviewmodel.cpp
+        SOURCES src/core/player/timelinerenderer.h src/core/player/timelinerenderer.cpp
         # src/ui/Pages/ShotDetail.qml
         # src/ui/Pages/PreviewPage.qml
 )

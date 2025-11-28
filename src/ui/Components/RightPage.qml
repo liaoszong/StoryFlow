@@ -1,39 +1,32 @@
 import QtQuick
 import QtQuick.Controls
 
-// 路由容器
-
+/**
+ * 右侧内容区域 - 路由容器
+ * 负责页面切换和全局状态管理
+ */
 Rectangle {
     id: home_right
-    bottomRightRadius: 20
-    color: "#FFFEFA"
+    bottomRightRadius: 16
+    color: "#F8FAFC"
 
-    // =========================================================
-    // 1. UI 状态属性 (View State)
-    // =========================================================
-    property string currentPage: "create"
-    property string selectedStyle: ""
-    property string storyText: ""
+    // ==================== 属性定义 ====================
+    property string currentPage: "create"           // 当前页面
+    property string selectedStyle: ""               // 选中的风格
+    property string storyText: ""                   // 故事文本
+    property bool isGenerating: storyViewModel.isGenerating  // 是否正在生成
+    property var currentProjectData: null           // 当前项目数据
+    property var currentShotData: null              // 当前分镜数据
 
-    // *直接绑定 ViewModel 的状态，无需手动控制 true/false
-    property bool isGenerating: storyViewModel.isGenerating
-
-    // *用于在页面间传递 (路由参数)
-    // 理想情况下 C++ ViewModel 应该有一个 currentProject 属性，但现在先由 UI 暂存
-    property var currentProjectData: null
-    property var currentShotData: null
-
-    // =========================================================
-    // 2. 信号定义 (仅保留导航相关)
-    // =========================================================
+    // ==================== 信号定义 ====================
     signal navigateTo(string page)
 
-    // =========================================================
-    // 3. 页面加载器 (Router)
-    // =========================================================
+    // ==================== 页面加载器 ====================
     Loader {
         id: contentLoader
         anchors.fill: parent
+
+        // 根据当前页面加载对应 QML
         source: {
             switch(currentPage) {
                 case "create": return "../Pages/CreatePage.qml"
@@ -45,155 +38,157 @@ Rectangle {
             }
         }
 
-        // *只传递数据 (Props)，不连接业务信号 (Actions)
+        // 页面加载完成后注入数据
         onLoaded: {
-            if (!item) return;
+            if (!item) return
 
-            // --- A. 数据注入 (Data Injection) ---
-            // 类似于 React/Vue 的 Props 传递
-
-            // 1. 通用数据
+            // 注入项目数据
             if (item.hasOwnProperty("currentProjectData")) {
                 item.currentProjectData = home_right.currentProjectData
             }
-            if (item.hasOwnProperty("projectData")) { // 兼容不同命名
+            if (item.hasOwnProperty("projectData")) {
                 item.projectData = home_right.currentProjectData
             }
+
+            // 注入分镜数据
             if (item.hasOwnProperty("shotData")) {
                 item.shotData = home_right.currentShotData
             }
 
-            // 2. CreatePage 状态保持
+            // 注入风格设置
             if (item.hasOwnProperty("selectedStyle")) {
                 item.selectedStyle = home_right.selectedStyle
             }
+
+            // 双向绑定故事文本
             if (item.hasOwnProperty("storyText")) {
                 item.storyText = home_right.storyText
-                // 双向绑定输入框内容
                 item.storyTextChanged.connect(function() {
                     home_right.storyText = item.storyText
                 })
             }
 
-            // 3. AssetsPage 自动刷新逻辑 (属于 View 的生命周期管理)
+            // Assets 页面自动刷新
             if (home_right.currentPage === "assets" && item.hasOwnProperty("allProjectsList")) {
                 assetsViewModel.loadAssets()
             }
         }
     }
 
-    // =========================================================
-    // 4. 全局 Loading 遮罩 (Global UI)
-    // =========================================================
+    // ==================== 加载遮罩 ====================
     Rectangle {
         id: loadingOverlay
         anchors.fill: parent
-        color: "#80FFFFFF"
-        visible: storyViewModel.isGenerating // 自动响应 C++ 状态
+        color: Qt.rgba(255, 255, 255, 0.95)
+        visible: storyViewModel.isGenerating
         z: 100
 
-        BusyIndicator {
+        Column {
             anchors.centerIn: parent
-            running: storyViewModel.isGenerating
+            spacing: 20
+
+            // 加载指示器
+            BusyIndicator {
+                running: storyViewModel.isGenerating
+                anchors.horizontalCenter: parent.horizontalCenter
+                scale: 1.2
+            }
+
+            // 状态消息
+            Text {
+                text: storyViewModel.statusMessage
+                font.pixelSize: 15
+                color: "#475569"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            // 提示文字
+            Text {
+                text: "请稍候..."
+                font.pixelSize: 13
+                color: "#94A3B8"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
         }
-        Text {
-            anchors.top: parent.verticalCenter
-            anchors.topMargin: 40
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: storyViewModel.statusMessage // 自动响应 C++ 消息
-            font.pixelSize: 16
-            color: "#666666"
+
+        // 拦截点击事件
+        MouseArea {
+            anchors.fill: parent
         }
-        MouseArea { anchors.fill: parent } // 拦截点击
     }
 
-    // =========================================================
-    // 5. 信号处理 (Controller Logic)
-    // =========================================================
+    // ==================== 信号连接 ====================
 
-    // A. 监听子页面的导航请求 (Router Logic)
+    // 监听子页面导航请求
     Connections {
         target: contentLoader.item
         ignoreUnknownSignals: true
 
         function onNavigateTo(page, payload) {
-            console.log("Router: 导航 -> " + page);
-
-            // 如果跳转带了参数（如点击分镜详情），暂存到 Router
+            // 保存分镜数据
             if (page === "shotDetail" && payload) {
-                home_right.currentShotData = payload;
+                home_right.currentShotData = payload
             }
-
-            // 执行跳转
-            home_right.navigateTo(page);
+            home_right.navigateTo(page)
         }
-
-        // 注意：这里不再处理 onGenerateStory，子页面自己去调 ViewModel
     }
 
-    // B. 监听 ViewModel 的业务结果 (Data Sync)
+    // 监听 ViewModel 事件
     Connections {
         target: storyViewModel
 
-        // 故事生成成功 -> 更新数据并跳转
+        // 故事生成完成
         function onStoryCreated(projectData) {
-            console.log("ViewModel: 故事生成完毕");
-            home_right.currentProjectData = projectData;
-
-            // 通知资产页刷新 (后台)
+            home_right.currentProjectData = projectData
             assetsViewModel.loadAssets()
-
-            // 路由跳转
-            home_right.navigateTo("storyboard");
+            home_right.navigateTo("storyboard")
         }
 
-        // 图片重绘成功 -> 局部更新 UI 数据
+        // 图片重新生成完成
         function onImageRegenerated(updatedShotPayload) {
-            console.log("ViewModel: 图片更新 ->", updatedShotPayload.shotId);
             updateShotStatus(
                 updatedShotPayload.shotId,
                 updatedShotPayload.status,
                 updatedShotPayload.localImagePath
-            );
+            )
         }
 
         // 错误处理
         function onErrorOccurred(msg) {
-            console.error("ViewModel Error:", msg);
-            // 这里建议未来加一个 Toast 组件显示错误
+            console.error("ViewModel 错误:", msg)
         }
     }
 
-    // =========================================================
-    // 6. 辅助函数 (Local Helper)
-    // =========================================================
+    // ==================== 辅助函数 ====================
 
-    // 用于在不重新请求 C++ 全量数据的情况下，局部刷新界面显示
+    // 更新分镜状态
     function updateShotStatus(shotId, newStatus, newUrl) {
-        // 更新当前选中的分镜 (ShotDetail)
+        // 更新当前分镜详情
         if (home_right.currentShotData && home_right.currentShotData.shotId === shotId) {
-            var tempShot = Object.assign({}, home_right.currentShotData);
-            tempShot.status = newStatus;
-            if (newUrl) tempShot.localImagePath = newUrl;
-            home_right.currentShotData = tempShot;
+            var tempShot = Object.assign({}, home_right.currentShotData)
+            tempShot.status = newStatus
+            if (newUrl) tempShot.localImagePath = newUrl
+            home_right.currentShotData = tempShot
         }
 
-        // 更新项目列表中的分镜 (Storyboard)
+        // 更新项目中的分镜列表
         if (home_right.currentProjectData && home_right.currentProjectData.storyboards) {
-            var proj = home_right.currentProjectData;
-            var list = proj.storyboards;
-            var found = false;
+            var proj = home_right.currentProjectData
+            var list = proj.storyboards
+            var found = false
+
             for (var i = 0; i < list.length; i++) {
                 if (list[i].shotId === shotId) {
-                    list[i].status = newStatus;
-                    if (newUrl) list[i].localImagePath = newUrl;
-                    found = true;
-                    break;
+                    list[i].status = newStatus
+                    if (newUrl) list[i].localImagePath = newUrl
+                    found = true
+                    break
                 }
             }
-            // 强制触发 QML 绑定更新 (Hack: 只有对象引用变了 QML 才会重绘)
+
+            // 触发 QML 重新绑定
             if (found) {
-                home_right.currentProjectData = JSON.parse(JSON.stringify(proj));
+                home_right.currentProjectData = JSON.parse(JSON.stringify(proj))
             }
         }
     }

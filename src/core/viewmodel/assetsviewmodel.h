@@ -16,6 +16,7 @@ public:
 
     Q_INVOKABLE void loadAssets();
     Q_INVOKABLE void filterAssets(const QString &keyword);
+    Q_INVOKABLE void deleteProject(const QString &projectId);
 
     bool isLoading() const { return m_isLoading; }
     QVariantList projectList() const { return m_projectList; }

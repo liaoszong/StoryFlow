@@ -2,106 +2,110 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+/**
+ * 视频预览页面
+ * 沉浸式深色背景，用于预览生成的视频效果
+ */
 Rectangle {
     id: previewPage
-    color: "#121212" // 沉浸式深色背景
-    bottomRightRadius: 20
+    color: "#0F172A"
+    bottomRightRadius: 16
 
-    // 1. 数据输入
-    property var currentProjectData: null
-    property var renderConfig: null // 播放器配置
+    // ==================== 属性定义 ====================
+    property var currentProjectData: null   // 当前项目数据
+    property var renderConfig: null         // 渲染配置
 
-    // 信号
+    // ==================== 信号定义 ====================
     signal navigateTo(string page)
 
-    // 2. 初始化逻辑
+    // 页面加载时构建渲染配置
     Component.onCompleted: {
         if (currentProjectData) {
-            console.log("Preview: 构建实时渲染配置...")
-            // 【MVVM】调用 C++ 纯逻辑函数，获取播放器需要的 JSON
             var config = storyViewModel.buildRenderConfig(currentProjectData)
             previewPage.renderConfig = config
         }
     }
 
-    // 3. 界面布局
+    // ==================== 主布局 ====================
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 40
-        spacing: 20
+        anchors.margins: 32
+        spacing: 24
 
-        // 顶部栏
+        // 顶部导航栏
         RowLayout {
             Layout.fillWidth: true
+
+            // 返回按钮
             Button {
                 text: "← 返回编辑"
-                background: Rectangle { color: "transparent" }
-                contentItem: Text { text: parent.text; color: "#AAAAAA"; font.pixelSize: 16 }
+                background: Rectangle {
+                    color: parent.hovered ? "#1E293B" : "transparent"
+                    radius: 8
+                }
+                contentItem: Text {
+                    text: parent.text
+                    color: "#94A3B8"
+                    font.pixelSize: 14
+                    font.weight: Font.Medium
+                }
                 onClicked: previewPage.navigateTo("storyboard")
             }
+
             Item { Layout.fillWidth: true }
+
+            // 项目名称
             Text {
                 text: currentProjectData ? currentProjectData.name : "预览"
-                color: "white"; font.pixelSize: 18; font.weight: Font.Bold
+                color: "#FFFFFF"
+                font.pixelSize: 18
+                font.weight: Font.Bold
             }
+
             Item { Layout.fillWidth: true }
-            Item { width: 80 }
+            Item { width: 100 }
         }
 
-        // 播放器区域
+        // ==================== 播放器容器 ====================
         Rectangle {
             id: playerContainer
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.maximumWidth: 500 // 9:16 比例
+            // 移除固定宽度限制，允许自适应，但设置最大宽度防止在超宽屏上太扁
+            Layout.maximumWidth: 800
             Layout.alignment: Qt.AlignHCenter
-            color: "black"
-            radius: 12
+
+            color: "#000000"
+            radius: 16
             clip: true
 
-            // =================================================
-            // 【集成点】多媒体同学的播放器组件
-            // =================================================
-            // 假设组件名叫 StoryPlayer
-            /*
-            StoryPlayer {
-                id: realTimePlayer
-                anchors.fill: parent
-
-                // 核心：传入 ViewModel 构建好的配置
-                config: previewPage.renderConfig
-
-                // 自动播放
-                autoPlay: true
-
-                onPlaybackFinished: {
-                    playBtn.visible = true
-                }
-            }
-            */
-
-            // --- 临时模拟播放器 (当组件没写好时用这个调试) ---
+            // 模拟播放器
             Item {
                 anchors.fill: parent
-                visible: true // 如果 StoryPlayer 好了，设为 false
+                visible: true
 
+                // 图片轮播
                 Image {
                     id: previewImg
                     anchors.fill: parent
-                    fillMode: Image.PreserveAspectCrop
-                    // 简单的幻灯片演示逻辑
+
+                    // 改为 Fit 模式，确保画面完整显示不裁剪
+                    // 这样横屏/竖屏视频都能完美适配，多余部分显示黑色背景
+                    fillMode: Image.PreserveAspectFit
+
                     property int currentIndex: 0
+
                     source: {
                         if (renderConfig && renderConfig.track && renderConfig.track.length > 0) {
-                             return renderConfig.track[currentIndex].assets.image
+                            return renderConfig.track[currentIndex].assets.image
                         }
                         return ""
                     }
 
-                    // 模拟播放定时器
+                    // 自动播放定时器
                     Timer {
                         running: previewPage.renderConfig !== null
-                        interval: 3000 // 3秒切一张
+                        interval: 3000
                         repeat: true
                         onTriggered: {
                             if (!previewPage.renderConfig) return
@@ -111,58 +115,120 @@ Rectangle {
                     }
                 }
 
-                // 字幕层
+                // 底部渐变遮罩 (优化高度)
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    height: 140 //稍微加高一点，容纳字幕
+
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: "transparent" }
+                        GradientStop { position: 1.0; color: "#000000" }
+                    }
+                }
+
+                // 字幕区域
                 Rectangle {
                     anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 40
+                    anchors.bottomMargin: 32 // 抬高一点
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width * 0.9
-                    height: 60
-                    color: "#80000000"
+
+                    // 自适应宽度，最大 80%
+                    width: Math.min(parent.width * 0.8, subtitleText.implicitWidth + 48)
+                    height: subtitleText.implicitHeight + 24
+
+                    color: Qt.rgba(0, 0, 0, 0.6) // 半透明黑底
                     radius: 8
+
                     Text {
+                        id: subtitleText
                         anchors.centerIn: parent
+                        width: parent.width - 32
                         color: "white"
-                        width: parent.width - 20
+                        font.pixelSize: 16 // 稍微加大字号
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
-                        // 模拟字幕
+
                         text: {
-                            if (renderConfig && renderConfig.track) {
+                            if (renderConfig && renderConfig.track && renderConfig.track.length > 0) {
                                 return renderConfig.track[previewImg.currentIndex].assets.text
                             }
-                            return "Loading..."
+                            return "加载中..."
+                        }
+                    }
+                }
+
+                // 进度指示器
+                Row {
+                    anchors.top: parent.top
+                    anchors.topMargin: 20
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 6
+                    visible: renderConfig && renderConfig.track
+
+                    Repeater {
+                        model: renderConfig ? renderConfig.track.length : 0
+
+                        Rectangle {
+                            width: previewImg.currentIndex === index ? 32 : 8 // 激活态更长
+                            height: 4
+                            radius: 2
+                            color: previewImg.currentIndex === index ? "#FFFFFF" : Qt.rgba(1, 1, 1, 0.3)
+
+                            // 加个动画让进度切换更平滑
+                            Behavior on width { NumberAnimation { duration: 200 } }
                         }
                     }
                 }
             }
         }
 
-        // 底部栏
+        // ==================== 底部操作栏 ====================
         RowLayout {
             Layout.fillWidth: true
-            Layout.maximumWidth: 500
+            Layout.maximumWidth: 400
             Layout.alignment: Qt.AlignHCenter
-            spacing: 20
+            spacing: 16
 
+            // 导出按钮
             Button {
-                text: "导出成品视频 (MP4)"
+                id: exportBtn
+                text: "导出视频 (MP4)"
                 Layout.fillWidth: true
-                Layout.preferredHeight: 50
+                Layout.preferredHeight: 52
+
+                hoverEnabled: true // 强制开启悬停
 
                 background: Rectangle {
-                    color: "#1976D2"
-                    radius: 25
+                    radius: 12
+
+                    // 移除白色覆盖层，使用纯净渐变逻辑
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop {
+                            position: 0.0;
+                            color: exportBtn.down ? "#4338CA" : (exportBtn.hovered ? "#4F46E5" : "#6366F1")
+                        }
+                        GradientStop {
+                            position: 1.0;
+                            color: exportBtn.down ? "#6D28D9" : (exportBtn.hovered ? "#7C3AED" : "#8B5CF6")
+                        }
+                    }
                 }
+
+                // 使用 Text 替代 Row，保证文字完美居中
                 contentItem: Text {
-                    text: parent.text; color: "white"; font.weight: Font.Bold; font.pixelSize: 16
-                    horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
+                    text: "\uD83C\uDFAC  " + parent.text
+                    color: "white"
+                    font.weight: Font.Bold
+                    font.pixelSize: 15
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
                 }
 
                 onClicked: {
-                    // 调用后端真实渲染
                     if (currentProjectData && currentProjectData.id) {
-                        console.log("请求后端渲染 MP4...")
                         storyViewModel.exportVideo(currentProjectData.id)
                     }
                 }

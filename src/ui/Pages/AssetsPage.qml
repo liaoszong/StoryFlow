@@ -2,116 +2,130 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+/**
+ * 资产管理页面 - Assets
+ * 展示所有已创建的故事项目，支持搜索和筛选
+ */
 Rectangle {
     id: assetsPage
     anchors.fill: parent
-    color: "#F0F2F5" // 浅灰背景
-    bottomRightRadius: 20
+    color: "#F8FAFC"
+    bottomRightRadius: 16
 
-    // 1.保存所有项目 (Array),等待 RightPage 注入数据
-    property var allProjectsList: assetsViewModel.projectList // 绑定 C++ 数据
+    // ==================== 属性定义 ====================
+    property var allProjectsList: assetsViewModel.projectList  // 绑定 C++ 数据
 
+    // ==================== 信号定义 ====================
     signal navigateTo(string page, var data)
 
-    // 2.给 GridView 用 (ListModel)
+    // 项目列表模型
     ListModel {
         id: projectModel
     }
 
-    // 监听数据源变化，一旦 RightPage 传数据进来，就刷新 UI
+    // 监听数据源变化
     onAllProjectsListChanged: {
-        console.log("AssetsPage: 收到数据更新，数量:", allProjectsList.length)
         updateSearch(searchInput.text)
     }
 
-    // 供外部强制调用的刷新接口
+    // 强制刷新接口
     function forceUpdateUI() {
         updateSearch(searchInput.text)
     }
 
-    // 页面加载时初始化模拟数据
+    // 页面加载时获取数据
     Component.onCompleted: {
-        // 页面加载时，主动让 ViewModel 去拉取最新数据
         assetsViewModel.loadAssets()
     }
 
-    // 3. 搜索与刷新逻辑
+    // 搜索过滤函数
     function updateSearch(keyword) {
-        projectModel.clear() // 清空旧的
-
+        projectModel.clear()
         var query = (keyword || "").trim().toLowerCase()
 
-        // 遍历父级传来的 list
         for (var i = 0; i < allProjectsList.length; i++) {
             var item = allProjectsList[i]
-
-            // 搜索匹配
+            // 增加 item 的空值检查
+            if (!item) {
+                console.warn("AssetsPage: 发现空项目数据，已跳过。");
+                continue; // 跳过此项，防止崩溃
+            }
             if (query === "" || (item.name && item.name.toLowerCase().indexOf(query) !== -1)) {
-                // 把数据转成 ListElement 格式塞进去
                 projectModel.append({
-                                        "name": item.name,
-                                        "date": item.date,
-                                        "status": item.status,
-                                        "colorCode": item.colorCode || "#CCCCCC",
-                                        "coverUrl": item.coverUrl || "",
-                                        // 注意：ListModel 只能存简单数据类型，对象要拆开或转字符串
-                                        // 如果点击需要跳转，可以通过 index 去 allProjectsList 里找原始对象
-                                        "originalIndex": i
-                                    })
+                    "name": item.name || "无名称",
+                    "date": item.date,
+                    "status": item.status,
+                    "colorCode": item.colorCode || "#6366F1",
+                    "coverUrl": item.coverUrl || "",
+                    "originalIndex": i
+                })
             }
         }
     }
 
+    // ==================== 主布局 ====================
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 40
-        spacing: 20
+        anchors.margins: 32
+        spacing: 24
 
-        // --- 顶部栏 ---
+        // 顶部标题栏
         RowLayout {
             Layout.fillWidth: true
             spacing: 20
 
-            Text {
-                text: "Assets"
-                font.pixelSize: 32
-                font.weight: Font.Bold
-                color: "#333333"
+            // 标题区域
+            ColumnLayout {
+                spacing: 4
+
+                Text {
+                    text: "Assets"
+                    font.pixelSize: 28
+                    font.weight: Font.Bold
+                    color: "#1E293B"
+                }
+
+                Text {
+                    text: projectModel.count + " 个项目"
+                    font.pixelSize: 13
+                    color: "#64748B"
+                }
             }
 
-            Item { Layout.fillWidth: true } // 占位弹簧
+            Item { Layout.fillWidth: true }
 
-            // --- 搜索框组件 ---
+            // 搜索框
             Rectangle {
-                Layout.preferredWidth: 320
-                Layout.preferredHeight: 44
+                Layout.preferredWidth: 280
+                Layout.preferredHeight: 40
                 color: "#FFFFFF"
-                radius: 22
-                border.color: searchInput.activeFocus ? "#1976D2" : "#E0E0E0"
-                border.width: searchInput.activeFocus ? 2 : 1
+                radius: 10
+                border.color: searchInput.activeFocus ? "#6366F1" : "#E2E8F0"
+                border.width: 1
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.margins: 15
-                    spacing: 10
+                    anchors.leftMargin: 12
+                    anchors.rightMargin: 12
+                    spacing: 8
 
+                    // 搜索图标
                     Text {
-                        text: "🔍"; font.pixelSize: 14; color: "#999999"
-                        anchors.verticalCenter: parent.verticalCenter
+                        text: "\uD83D\uDD0D"
+                        font.pixelSize: 14
+                        color: "#94A3B8"
                     }
 
                     TextField {
                         id: searchInput
                         Layout.fillWidth: true
-                        placeholderText: "搜索故事名称..."
-                        font.pixelSize: 14
-                        color: "#333333"
+                        placeholderText: "搜索项目..."
+                        placeholderTextColor: "#94A3B8"
+                        font.pixelSize: 13
+                        color: "#1E293B"
                         background: null
                         selectByMouse: true
-                        verticalAlignment: Text.AlignVCenter
-                        anchors.verticalCenter: parent.verticalCenter
 
-                        // 当文字改变时，触发搜索函数
                         onTextChanged: {
                             assetsPage.updateSearch(text)
                         }
@@ -120,18 +134,24 @@ Rectangle {
             }
         }
 
-        // --- 筛选标签 (UI展示) ---
+        // 筛选标签栏
         Row {
-            spacing: 25
-            Text {
+            spacing: 24
+
+            // 全部项目标签
+            TabItem {
                 text: "全部项目"
-                font.pixelSize: 15; font.weight: Font.Bold; color: "#1976D2"
-                Rectangle { width: parent.width; height: 3; color: "#1976D2"; radius: 1.5; anchors.top: parent.bottom; anchors.topMargin: 4 }
+                isActive: true
             }
-            Text { text: "草稿箱"; font.pixelSize: 15; color: "#666666" }
+
+            // 草稿箱标签
+            TabItem {
+                text: "草稿箱"
+                isActive: false
+            }
         }
 
-        // --- 网格展示区 ---
+        // ==================== 项目网格 ====================
         GridView {
             id: assetGrid
             Layout.fillWidth: true
@@ -139,106 +159,205 @@ Rectangle {
             clip: true
 
             cellWidth: 260
-            cellHeight: 300
+            cellHeight: 280
 
-            // 绑定到那个动态变化的 Model
             model: projectModel
 
+            // 项目卡片代理
             delegate: Rectangle {
-                width: assetGrid.cellWidth - 20
-                height: assetGrid.cellHeight - 20
+                width: assetGrid.cellWidth - 16
+                height: assetGrid.cellHeight - 16
                 color: "#FFFFFF"
                 radius: 12
-                border.color: hoverHandler.hovered ? "#1976D2" : "#EEEEEE"
-                border.width: hoverHandler.hovered ? 2 : 1
+                border.color: hoverHandler.containsMouse ? "#6366F1" : "#E2E8F0"
+                border.width: hoverHandler.containsMouse ? 2 : 1
 
                 MouseArea {
                     id: hoverHandler
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
+
                     onClicked: {
-                        console.log("点击项目:", name)
-                        // 通过 originalIndex 找到原始的完整数据
                         var fullData = assetsPage.allProjectsList[originalIndex].fullData
-                        // 发送信号（注意：需要 assetsPage 定义 signal navigateTo(page, payload)）
                         assetsPage.navigateTo("storyboard", fullData)
+                    }
+                }
+
+                Button {
+                    width: 30
+                    height: 30
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    anchors.margins: 8 // 稍微大一点间距
+                    z: 10 // 确保在最上层
+
+                    background: Rectangle {
+                        color: parent.hovered ? "#FFEBEE" : "white"
+                        radius: 15
+                        opacity: 0.9
+                        border.color: "#E2E8F0" // 加个边框更明显
+                        border.width: 1
+                    }
+
+                    contentItem: Text {
+                        text: "🗑️"
+                        font.pixelSize: 14
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: {
+                        // 【防御编程】使用 model.name 替代 modelData.name
+                        var n = name || "未知项目"
+                        console.log("删除项目:", n)
+
+                        // 获取 ID 并删除
+                        var pid = assetsPage.allProjectsList[index].id
+                        assetsViewModel.deleteProject(pid)
                     }
                 }
 
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 12
-                    spacing: 10
+                    spacing: 12
 
-                    // 封面
+                    // 封面图片
                     Rectangle {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 150 // 保持高度不变
+                        Layout.preferredHeight: 140
                         radius: 8
-                        color: colorCode // 随机底色
-                        clip: true       // 裁剪超出圆角的部分
+                        color: colorCode
+                        clip: true
 
-                        // 1. 底色层 (当没有图片时显示这个颜色)
+                        // 默认背景（无图片时显示首字母）
                         Rectangle {
                             anchors.fill: parent
                             color: colorCode
                             visible: img.status !== Image.Ready
 
-                            // 默认首字母图标
                             Text {
                                 anchors.centerIn: parent
-                                text: name.charAt(0)
-                                font.pixelSize: 40
+                                text: name.charAt(0).toUpperCase()
+                                font.pixelSize: 36
+                                font.weight: Font.Bold
                                 color: "white"
                             }
                         }
 
-                        // 2. 图片层
+                        // 封面图片
                         Image {
                             id: img
                             anchors.fill: parent
                             source: coverUrl
-                            // 【关键】保持比例裁剪，填满整个区域，效果最好
                             fillMode: Image.PreserveAspectCrop
                             visible: source !== ""
-
-                            // 异步加载，防止卡顿
                             asynchronous: true
                         }
 
-                        // 3. 状态标签 (保持在最上层)
+                        // 状态标签
                         Rectangle {
                             anchors.top: parent.top
                             anchors.right: parent.right
                             anchors.margins: 8
-                            width: status === "completed" ? 50 : 40
+                            width: badgeText.width + 12
                             height: 22
                             radius: 11
-                            color: "white"
-                            opacity: 0.9
+                            color: "#FFFFFF"
 
                             Text {
+                                id: badgeText
                                 anchors.centerIn: parent
-                                text: status === "completed" ? "完成" : "草稿"
-                                font.pixelSize: 11
-                                font.weight: Font.Medium
-                                color: status === "completed" ? "#2E7D32" : "#EF6C00"
+                                text: status === "completed" ? "已完成" : "草稿"
+                                font.pixelSize: 10
+                                font.weight: Font.Bold
+                                color: status === "completed" ? "#166534" : "#B45309"
                             }
                         }
                     }
 
-                    // 信息
-                    Text { text: name; font.pixelSize: 16; font.weight: Font.Bold; color: "#333333"; Layout.fillWidth: true; elide: Text.ElideRight }
-                    RowLayout {
+                    // 项目信息
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        Text { text: status === "completed" ? "✅ 完成" : "📝 草稿"; color: status === "completed" ? "green" : "orange"; font.pixelSize: 12 }
-                        Item { Layout.fillWidth: true }
-                        Text { text: date; color: "#999"; font.pixelSize: 12 }
+                        spacing: 4
+
+                        // 项目名称
+                        Text {
+                            text: name
+                            font.pixelSize: 15
+                            font.weight: Font.DemiBold
+                            color: "#1E293B"
+                            Layout.fillWidth: true
+                            elide: Text.ElideRight
+                        }
+
+                        // 状态和日期
+                        RowLayout {
+                            Layout.fillWidth: true
+
+                            // 状态指示点
+                            Rectangle {
+                                width: 6
+                                height: 6
+                                radius: 3
+                                color: status === "completed" ? "#22C55E" : "#F59E0B"
+                            }
+
+                            Text {
+                                text: status === "completed" ? "已完成" : "进行中"
+                                color: "#64748B"
+                                font.pixelSize: 12
+                            }
+
+                            Item { Layout.fillWidth: true }
+
+                            // 日期
+                            Text {
+                                text: date
+                                color: "#94A3B8"
+                                font.pixelSize: 11
+                            }
+                        }
                     }
+
                     Item { Layout.fillHeight: true }
                 }
             }
+        }
+    }
+
+    // ==================== 标签页组件 ====================
+    component TabItem : Rectangle {
+        property string text      // 标签文字
+        property bool isActive    // 是否激活
+
+        width: tabText.width
+        height: tabText.height + 8
+        color: "transparent"
+
+        Text {
+            id: tabText
+            text: parent.text
+            font.pixelSize: 14
+            font.weight: isActive ? Font.DemiBold : Font.Normal
+            color: isActive ? "#6366F1" : "#64748B"
+        }
+
+        // 激活指示条
+        Rectangle {
+            visible: isActive
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: 2
+            radius: 1
+            color: "#6366F1"
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
         }
     }
 }

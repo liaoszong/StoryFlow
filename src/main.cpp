@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQuickStyle>
 #include "core/net/ApiService.h"
 #include "core/viewmodel/StoryViewModel.h"
 #include "core/viewmodel/AssetsViewModel.h" // 【新增】引入头文件
@@ -8,6 +9,7 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    QQuickStyle::setStyle("Basic");
 
     // 1. 创建网络服务
     ApiService apiService;
