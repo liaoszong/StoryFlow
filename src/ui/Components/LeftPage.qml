@@ -3,9 +3,8 @@ import QtQuick.Controls
 
 /**
  * 左侧导航栏组件
- * - 显示主要功能入口：Create 和 Assets
- * - 支持选中状态高亮
- * - 悬停交互效果
+ * - 显示主要功能入口：Create, Assets, Preview
+ * - 统一样式：选中高亮、悬停效果、图标容器
  */
 Rectangle {
     id: home_left
@@ -53,7 +52,7 @@ Rectangle {
             font.letterSpacing: 1
         }
 
-        // Create 导航项
+        // ==================== 1. Create 导航项 ====================
         Rectangle {
             id: createNav
             width: parent.width
@@ -73,15 +72,12 @@ Rectangle {
 
                 // 图标容器
                 Rectangle {
-                    width: 28
-                    height: 28
-                    radius: 6
+                    width: 28; height: 28; radius: 6
                     color: currentPage === "create" ? "#6366F1" : "transparent"
                     anchors.verticalCenter: parent.verticalCenter
-
                     Text {
                         anchors.centerIn: parent
-                        text: "\u270F"
+                        text: "\u270F" // ✏️
                         font.pixelSize: 14
                         color: currentPage === "create" ? "#FFFFFF" : "#6B7280"
                     }
@@ -101,9 +97,7 @@ Rectangle {
                 visible: currentPage === "create"
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                width: 3
-                height: 20
-                radius: 2
+                width: 3; height: 20; radius: 2
                 color: "#6366F1"
             }
 
@@ -116,7 +110,7 @@ Rectangle {
             }
         }
 
-        // Assets 导航项
+        // ==================== 2. Assets 导航项 ====================
         Rectangle {
             id: assetsNav
             width: parent.width
@@ -136,15 +130,12 @@ Rectangle {
 
                 // 图标容器
                 Rectangle {
-                    width: 28
-                    height: 28
-                    radius: 6
+                    width: 28; height: 28; radius: 6
                     color: currentPage === "assets" ? "#6366F1" : "transparent"
                     anchors.verticalCenter: parent.verticalCenter
-
                     Text {
                         anchors.centerIn: parent
-                        text: "\uD83D\uDCC1"
+                        text: "\uD83D\uDCC1" // 📁
                         font.pixelSize: 14
                         color: currentPage === "assets" ? "#FFFFFF" : "#6B7280"
                     }
@@ -164,9 +155,7 @@ Rectangle {
                 visible: currentPage === "assets"
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                width: 3
-                height: 20
-                radius: 2
+                width: 3; height: 20; radius: 2
                 color: "#6366F1"
             }
 
@@ -176,6 +165,66 @@ Rectangle {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: home_left.navigateTo("assets")
+            }
+        }
+
+        // ==================== 3. Video Preview 导航项 (升级样式) ====================
+        Rectangle {
+            id: videoNav
+            width: parent.width
+            height: 44
+            radius: 10
+
+            // 样式逻辑与上面保持一致
+            color: {
+                if (currentPage === "preview") return "#EEF2FF"
+                if (videoMouse.containsMouse) return "#F3F4F6"
+                return "transparent"
+            }
+
+            Row {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 14
+                spacing: 12
+
+                // 图标容器
+                Rectangle {
+                    width: 28; height: 28; radius: 6
+                    color: currentPage === "preview" ? "#6366F1" : "transparent"
+                    anchors.verticalCenter: parent.verticalCenter
+                    Text {
+                        anchors.centerIn: parent
+                        text: "🎬"
+                        font.pixelSize: 14
+                        color: currentPage === "preview" ? "#FFFFFF" : "#6B7280"
+                    }
+                }
+
+                Text {
+                    text: "Preview" // 简化文字，保持对齐
+                    font.pixelSize: 14
+                    font.weight: currentPage === "preview" ? Font.DemiBold : Font.Medium
+                    color: currentPage === "preview" ? "#4F46E5" : "#374151"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+            }
+
+            // 左侧选中指示条
+            Rectangle {
+                visible: currentPage === "preview"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                width: 3; height: 20; radius: 2
+                color: "#6366F1"
+            }
+
+            MouseArea {
+                id: videoMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: home_left.navigateTo("preview")
             }
         }
     }

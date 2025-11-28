@@ -36,6 +36,7 @@ qt_add_qml_module(appStoryFlow
         SOURCES src/core/viewmodel/storyviewmodel.h src/core/viewmodel/storyviewmodel.cpp
         SOURCES src/core/viewmodel/assetsviewmodel.h src/core/viewmodel/assetsviewmodel.cpp
         SOURCES src/core/player/timelinerenderer.h src/core/player/timelinerenderer.cpp
+        SOURCES src/core/player/engine/storyengine.h src/core/player/engine/storyengine.cpp
 
 )
 

@@ -43,6 +43,11 @@ Rectangle {
                 }
             }
             transitionCombo.currentIndex = idx
+
+            // 回显运镜效果
+            var currentEffect = shotData.effect || "zoom_in" // 默认放大
+            var effIdx = effectCombo.values.indexOf(currentEffect)
+            effectCombo.currentIndex = (effIdx >= 0) ? effIdx : 0
         }
     }
 
@@ -320,6 +325,31 @@ Rectangle {
                         }
                     }
 
+                    // 运镜效果 (Camera Movement)
+                    ColumnLayout {
+                        width: parent.width
+                        spacing: 8
+                        Text {
+                            text: "运镜方式 (Camera Movement)"
+                            font.pixelSize: 14; font.weight: Font.Bold; color: "#666666"
+                        }
+                        ComboBox {
+                            id: effectCombo
+                            Layout.fillWidth: true
+                            // 显示给用户看的文字
+                            model: ["Zoom In (放大)", "Zoom Out (缩小)", "Pan Left (左移)", "Pan Right (右移)", "Static (静止)"]
+
+                            // 对应传给后端的 value
+                            property var values: ["zoom_in", "zoom_out", "pan_left", "pan_right", "static"]
+
+                            background: Rectangle {
+                                color: "#FFFFFF"
+                                border.color: "#E0E0E0"
+                                radius: 8
+                            }
+                        }
+                    }
+
                     Item { Layout.preferredHeight: 12 }
 
                     // 重新生成按钮
@@ -391,6 +421,7 @@ Rectangle {
         shotData.prompt = promptArea.text
         shotData.narration = narrationArea.text
         shotData.transition = kTransitions[transitionCombo.currentIndex].value
+        shotData.effect = effectCombo.values[effectCombo.currentIndex] // 保存运镜效果
     }
 
     // 获取状态背景色
