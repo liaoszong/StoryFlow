@@ -28,7 +28,7 @@ void Backend::createStory(const QString &prompt, const QString &style)
     // 2. 设置 URL 和 Header
     // 服务器地址
     QUrl url(BASE_URL + "/api/create_story");
-   // QUrl url("http://115.190.232.13");
+    // QUrl url("http://39.105.112.239/api/story/generate");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -119,7 +119,7 @@ void Backend::checkTaskStatus()
                 QVariantMap resultMap = payload.toVariantMap();
                 emit storyCreated(resultMap);
 
-                // 3. 发送 100% 进度让进度条消失（可选）
+                // 3. 发送 100% 进度让进度条消失
                 emit storyProgress(100, "完成");
 
             } else {
@@ -168,7 +168,6 @@ void Backend::regenerateImage(const QString &projectId, const QString &shotId, c
             QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
             QJsonObject jsonObj = jsonDoc.object();
 
-            // 对应 app.py 的 ACTION_TYPE_SUCCESS
             if (jsonObj["type"].toString() == "ACTION_TYPE_SUCCESS") {
                 if (jsonObj.contains("payload")) {
                     QVariantMap resultMap = jsonObj["payload"].toObject().toVariantMap();
@@ -187,7 +186,7 @@ void Backend::regenerateImage(const QString &projectId, const QString &shotId, c
 
 /*
 // -----------------------------------------------------
-// 4. 生成视频 API (对应 JSON 结构 5 & 6)
+// 4. 生成视频 API
 // -----------------------------------------------------
 void Backend::generateVideo(const QString &projectId)
 {

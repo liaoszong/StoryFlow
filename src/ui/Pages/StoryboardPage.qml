@@ -43,19 +43,19 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            // 【1. 数据源】
+            // 1. 数据源
             // 告诉列表：你的数据在 projectData 里的 storyboards 字段里
             // 如果为空，就给个空数组 []
             model: (storyboardPage.projectData && storyboardPage.projectData.storyboards)
                    ? storyboardPage.projectData.storyboards
                    : []
 
-            // 【2. 排列方式】横向排列
+            // 2. 排列方式】横向排列
             orientation: ListView.Horizontal
             spacing: 20
             clip: true // 防止卡片滑出边界
 
-            // 【3. 卡片模板 (Delegate)】
+            // 3. 卡片模板 (Delegate)
             // 每一个分镜数据都会套用这个模板渲染一次
             delegate: Rectangle {
                 width: 300  // 卡片宽度
@@ -85,6 +85,10 @@ Rectangle {
                             source: modelData.localImagePath ? modelData.localImagePath : ""
                             fillMode: Image.PreserveAspectCrop
                             visible: modelData.localImagePath !== ""
+                            // 异步加载，列表滑动更流畅
+                            asynchronous: true
+                            // 如果图片会重绘，关掉缓存防止显示旧图
+                            cache: false
                         }
 
                         // 没图片时显示的占位文字
@@ -103,13 +107,18 @@ Rectangle {
                             width: 80
                             height: 24
                             radius: 12
-                            color: "#E3F2FD" // 浅蓝色背景
+                            // 【优化】根据状态变色
+                            color: modelData.status === "generated" ? "#E8F5E9" :
+                                                                      (modelData.status === "generating" ? "#E3F2FD" : "#FFF3E0")
+
                             Text {
                                 anchors.centerIn: parent
-                                // 显示状态文本
-                                text: modelData.status
-                                color: "#1565C0"
-                                font.pixelSize: 12
+                                text: modelData.status ? modelData.status.toUpperCase() : "PENDING"
+                                // 【优化】文字颜色也跟着变
+                                color: modelData.status === "generated" ? "#2E7D32" :
+                                                                          (modelData.status === "generating" ? "#1565C0" : "#EF6C00")
+                                font.pixelSize: 10
+                                font.weight: Font.Bold
                             }
                         }
                     }
@@ -148,7 +157,8 @@ Rectangle {
                                 "prompt": modelData.prompt,
                                 "narration": modelData.narration,
                                 "localImagePath": modelData.localImagePath,
-                                "status": modelData.status
+                                "status": modelData.status,
+                                "transition": modelData.transition || "kenBurns"
                             };
 
                             console.log("准备跳转，数据ID:", shotPayload.shotId);
@@ -182,7 +192,16 @@ Rectangle {
                 }
 
                 onClicked: {
-                    storyboardPage.navigateTo("preview", null)
+                    // 调用 ViewModel 生成视频
+                    // 假设 projectData 里有 id 字段
+                    if (storyboardPage.projectData && storyboardPage.projectData.id) {
+                        storyViewModel.generateVideo(storyboardPage.projectData.id)
+
+                        // 跳转去预览页
+                        storyboardPage.navigateTo("preview", null)
+                    } else {
+                        console.log("没有项目ID，无法生成视频")
+                    }
                 }
             }
             // 返回按钮

@@ -9,7 +9,7 @@ Rectangle {
 
 
     // 属性
-    property string selectedStyle: ""
+    property string selectedStyle: "animation"
     property string storyText: ""
     property var currentProjectData: null
 
@@ -203,35 +203,44 @@ Rectangle {
             }
         }
 
-        // 生成故事
-        Rectangle{
-            id: generatestory
+        // 生成故事按钮 (使用标准 Button)
+        Button {
+            id: generateBtn
             width: 100
             height: 40
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 20
-            color: createPage.storyText.length > 0 ?
-                              (mouse_gstory.containsMouse ? "#1565C0" : "#1976D2")
-                                                          : "#CCCCCC"
-            radius: 8
-            Text {
-                id: t_generatestory
-                text: "生成故事"
+
+            text: "生成故事"
+
+            // 直接绑定 enabled 属性
+            // 如果没字，按钮自动进入 disabled 状态
+            enabled: createPage.storyText.length > 0
+
+            // 自定义背景，利用内置状态 (enabled, down, hovered)
+            background: Rectangle {
+                radius: 8
+                color: !generateBtn.enabled ? "#CCCCCC" :  // 禁用时变灰
+                                              (generateBtn.down || generateBtn.hovered) ? "#1565C0" : "#1976D2" // 按下或悬停变深蓝，默认蓝
+
+                // 加个过渡动画，让颜色变化更丝滑
+                Behavior on color { ColorAnimation { duration: 100 } }
+            }
+
+            // 自定义文字样式
+            contentItem: Text {
+                text: generateBtn.text
                 font.pixelSize: 16
                 font.weight: Font.Medium
                 color: "white"
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
             }
-            MouseArea{
-                id: mouse_gstory
-                hoverEnabled: true
-                anchors.fill: parent
-                onClicked: {
-                    if (createPage.storyText.length > 0) {
-                        createPage.generateStory()
-                    }
-                }
+
+            // 点击逻辑
+            onClicked: {
+                // 不需要再判断 length > 0，因为 enabled 为 false 时根本点不了
+                createPage.generateStory()
             }
         }
     }

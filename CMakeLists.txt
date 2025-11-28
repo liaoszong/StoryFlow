@@ -15,14 +15,16 @@ qt_add_executable(appStoryFlow
     src/main.cpp
 )
 
+target_include_directories(appStoryFlow PUBLIC ${CMAKE_SOURCE_DIR}/src)
+
 qt_add_qml_module(appStoryFlow
     URI StoryFlow
     VERSION 1.0
     QML_FILES
         src/ui/Main.qml
-        src/ui/Components/LeftPage/LeftPage.qml
-        src/ui/Components/RightPage/RightPage.qml
-        src/ui/Components/TopPage/TopPage.qml
+        src/ui/Components/LeftPage.qml
+        src/ui/Components/RightPage.qml
+        src/ui/Components/TopPage.qml
         src/ui/Pages/CreatePage.qml
         src/ui/Pages/StoryboardPage.qml
         src/ui/Pages/AssetsPage.qml
@@ -31,6 +33,9 @@ qt_add_qml_module(appStoryFlow
         QML_FILES src/ui/Pages/ShotDetailPage.qml
         SOURCES src/backend.h src/backend.cpp
         SOURCES
+        SOURCES src/core/net/apiservice.h src/core/net/apiservice.cpp
+        SOURCES src/core/viewmodel/storyviewmodel.h src/core/viewmodel/storyviewmodel.cpp
+        SOURCES src/core/viewmodel/assetsviewmodel.h src/core/viewmodel/assetsviewmodel.cpp
         # src/ui/Pages/ShotDetail.qml
         # src/ui/Pages/PreviewPage.qml
 )

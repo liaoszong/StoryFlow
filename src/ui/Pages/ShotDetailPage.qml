@@ -14,7 +14,6 @@ Rectangle {
 
     // 信号
     signal navigateTo(string page)
-    signal regenerateImage(string shotId, string newPrompt)
     signal updateShotData(var updatedData) // 用于将修改后的数据存回主数据
 
     // 当 shotData 改变时，刷新界面上的输入框内容
@@ -277,10 +276,25 @@ Rectangle {
 
                         onClicked: {
                             if (shotData) {
-                                // 触发重新生成信号
-                                saveCurrentEdits() // 先保存文字修改
-                                shotDetailPage.regenerateImage(shotData.shotId, promptArea.text)
-                                shotDetailPage.navigateTo("storyboard")
+                                // 1. 先保存用户的修改 (把 Prompt 更新到 shotData)
+                                saveCurrentEdits()
+
+                                var projId = shotDetailPage.projectId || "temp_id"
+                                var style = shotDetailPage.selec_style || "animation"
+
+                                // 2. 立即让界面进入 Loading 状态
+                                // 注意：需要用赋值的方式触发 QML 绑定更新
+                                var temp = shotData
+                                temp.status = "generating"
+                                shotData = null // 强制刷新 Hack (可选)
+                                shotData = temp
+
+                                // 3. 调用后端
+                                storyViewModel.regenerateImage(projId, shotData.shotId, promptArea.text, style)
+                                console.log("UI: 已请求重绘图片", shotData.shotId)
+
+                                // 4. 如果想跳回去，取消注释下面这行
+                                // shotDetailPage.navigateTo("storyboard")
                             }
                         }
                     }

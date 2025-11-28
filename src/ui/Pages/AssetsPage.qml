@@ -9,7 +9,7 @@ Rectangle {
     bottomRightRadius: 20
 
     // 1.保存所有项目 (Array),等待 RightPage 注入数据
-    property var allProjectsList: []
+    property var allProjectsList: assetsViewModel.projectList // 绑定 C++ 数据
 
     signal navigateTo(string page, var data)
 
@@ -31,19 +31,8 @@ Rectangle {
 
     // 页面加载时初始化模拟数据
     Component.onCompleted: {
-        // 模拟从后端拿到的 JSON 数据
-        var mockData = [
-            { id: "1", name: "勇敢猫咪的冒险", date: "2025-11-24", status: "completed", colorCode: "#FFCDD2" },
-            { id: "2", name: "赛博朋克 2077", date: "2025-11-23", status: "draft", colorCode: "#BBDEFB" },
-            { id: "3", name: "清晨的森林", date: "2025-11-22", status: "completed", colorCode: "#C8E6C9" },
-            { id: "4", name: "未命名故事 01", date: "2025-11-20", status: "draft", colorCode: "#E1BEE7" },
-            { id: "5", name: "机甲战士", date: "2025-11-19", status: "completed", colorCode: "#FFE0B2" }
-        ]
-
-        // 存入源数据
-        assetsPage.allProjectsList = mockData
-        // 初始显示全部
-        updateSearch("")
+        // 页面加载时，主动让 ViewModel 去拉取最新数据
+        assetsViewModel.loadAssets()
     }
 
     // 3. 搜索与刷新逻辑

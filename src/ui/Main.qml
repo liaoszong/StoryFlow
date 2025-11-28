@@ -29,61 +29,54 @@ Window {
         border.width: 1
         border.color: "#E0E0E0"
 
-        // // 主内容容器
-        // Item {
-        //     id: contentContainer
-        //     anchors.fill: backgroundRect
-        //     anchors.margins: 1 // 避免内容覆盖边框
+        // 顶部栏
+        TopPage {
+            id: home_top
+            height: 60
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+        }
 
-            // 顶部栏
-            TopPage {
-                id: home_top
-                height: 60
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
+        // 左侧导航
+        LeftPage {
+            id: home_left
+            width: 240
+            anchors.top: home_top.bottom
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            currentPage: mainWindow.currentPage
+            onNavigateTo: function(page) {
+                mainWindow.currentPage = page
+            }
+        }
+
+        // 右侧主内容区域
+        RightPage {
+            id: home_right
+            anchors.top: home_top.bottom
+            anchors.left: home_left.right
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            currentPage: mainWindow.currentPage
+            selectedStyle: mainWindow.selectedStyle
+            storyText: mainWindow.storyText
+
+            onStyleSelected: function(style) {
+                mainWindow.selectedStyle = style
             }
 
-            // 左侧导航
-            LeftPage {
-                id: home_left
-                width: 240
-                anchors.top: home_top.bottom
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-                currentPage: mainWindow.currentPage
-                onNavigateTo: function(page) {
-                    mainWindow.currentPage = page
-                }
+            onGenerateStory: {
+                // 模拟生成成功，导航到Storyboard
+                console.log("生成故事:", storyText, "风格:", selectedStyle)
+                mainWindow.currentPage = "storyboard"
             }
 
-            // 右侧主内容区域
-            RightPage {
-                id: home_right
-                anchors.top: home_top.bottom
-                anchors.left: home_left.right
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                currentPage: mainWindow.currentPage
-                selectedStyle: mainWindow.selectedStyle
-                storyText: mainWindow.storyText
-
-                onStyleSelected: function(style) {
-                    mainWindow.selectedStyle = style
-                }
-
-                onGenerateStory: {
-                    // 模拟生成成功，导航到Storyboard
-                    console.log("生成故事:", storyText, "风格:", selectedStyle)
-                    mainWindow.currentPage = "storyboard"
-                }
-
-                // 添加导航信号处理
-                onNavigateTo: function(page) {
-                    mainWindow.currentPage = page
-                }
+            // 添加导航信号处理
+            onNavigateTo: function(page) {
+                mainWindow.currentPage = page
             }
-//        }
+        }
     }
 }
 
