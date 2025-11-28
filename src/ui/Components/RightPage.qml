@@ -27,8 +27,6 @@ Rectangle {
     // 2. 信号定义 (仅保留导航相关)
     // =========================================================
     signal navigateTo(string page)
-    // signal generateStory() // 【删除】不再需要，子页面直接调 ViewModel
-    // signal styleSelected(...) // 【删除】如果仅用于内部逻辑可删
 
     // =========================================================
     // 3. 页面加载器 (Router)
@@ -38,12 +36,12 @@ Rectangle {
         anchors.fill: parent
         source: {
             switch(currentPage) {
-                case "create": return "../../Pages/CreatePage.qml"
-                case "storyboard": return "../../Pages/StoryboardPage.qml"
-                case "assets": return "../../Pages/AssetsPage.qml"
-                case "shotDetail": return "../../Pages/ShotDetailPage.qml"
-                case "preview": return "../../Pages/PreviewPage.qml"
-                default: return "../../Pages/CreatePage.qml"
+                case "create": return "../Pages/CreatePage.qml"
+                case "storyboard": return "../Pages/StoryboardPage.qml"
+                case "assets": return "../Pages/AssetsPage.qml"
+                case "shotDetail": return "../Pages/ShotDetailPage.qml"
+                case "preview": return "../Pages/PreviewPage.qml"
+                default: return "../Pages/CreatePage.qml"
             }
         }
 

@@ -1,4 +1,3 @@
-// StoryboardPage.qml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -7,14 +6,20 @@ Rectangle {
     id: storyboardPage
     color: "#F0F2F5"
     bottomRightRadius: 20
-    // 属性
+
+    // =========================================================
+    // 1. UI 状态 (View State)
+    // =========================================================
     property string selectedStyle: ""
     property string storyText: ""
+
+    // 【关键】给予一个安全的默认值，防止 ListView 初始化时报错
     property var projectData: ({ "storyboards": [] })
 
-    // 信号,传递给RightPage
-    signal styleSelected(string style)
-    signal generateStory()
+    // =========================================================
+    // 2. 信号 (Signals)
+    // =========================================================
+    // 仅保留页面跳转信号，这是 View 层的核心职责
     signal navigateTo(string page, var data)
 
     ColumnLayout {
@@ -22,44 +27,46 @@ Rectangle {
         anchors.margins: 40
         spacing: 30
 
-        Text {
-            text: "Storyboard"
-            font.pixelSize: 32
-            font.weight: Font.Bold
-            color: "#333333"
+        // 标题区
+        ColumnLayout {
             Layout.alignment: Qt.AlignHCenter
+            spacing: 10
+
+            Text {
+                text: "Storyboard"
+                font.pixelSize: 32
+                font.weight: Font.Bold
+                color: "#333333"
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            Text {
+                text: "故事生成成功！这是您的分镜预览："
+                font.pixelSize: 16
+                color: "#666666"
+                Layout.alignment: Qt.AlignHCenter
+            }
         }
 
-        Text {
-            text: "故事生成成功！这是您的分镜预览："
-            font.pixelSize: 16
-            color: "#666666"
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        // 把原来的 RowLayout 删掉，换成这个 ListView
+        // 分镜列表
         ListView {
             id: shotList
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            // 1. 数据源
-            // 告诉列表：你的数据在 projectData 里的 storyboards 字段里
-            // 如果为空，就给个空数组 []
+            // 数据源绑定
             model: (storyboardPage.projectData && storyboardPage.projectData.storyboards)
                    ? storyboardPage.projectData.storyboards
                    : []
 
-            // 2. 排列方式】横向排列
             orientation: ListView.Horizontal
             spacing: 20
-            clip: true // 防止卡片滑出边界
+            clip: true
 
-            // 3. 卡片模板 (Delegate)
-            // 每一个分镜数据都会套用这个模板渲染一次
+            // 卡片模板
             delegate: Rectangle {
-                width: 300  // 卡片宽度
-                height: shotList.height // 高度占满列表
+                width: 300
+                height: shotList.height
                 color: "#FFFFFF"
                 radius: 12
                 border.color: "#E0E0E0"
@@ -70,7 +77,7 @@ Rectangle {
                     anchors.margins: 15
                     spacing: 10
 
-                    // A. 顶部：图片或占位符
+                    // A. 图片区域
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
@@ -78,28 +85,42 @@ Rectangle {
                         radius: 8
                         clip: true
 
-                        // 如果有图片 URL 就显示图片 (Image)，没有就显示文字
-                        // modelData 代表当前这一条分镜数据
                         Image {
                             anchors.fill: parent
-                            source: modelData.localImagePath ? modelData.localImagePath : ""
+                            // 确保 URL 有效才加载
+                            source: (modelData.localImagePath) ? modelData.localImagePath : ""
                             fillMode: Image.PreserveAspectCrop
-                            visible: modelData.localImagePath !== ""
-                            // 异步加载，列表滑动更流畅
+                            visible: status === Image.Ready
                             asynchronous: true
-                            // 如果图片会重绘，关掉缓存防止显示旧图
                             cache: false
                         }
 
-                        // 没图片时显示的占位文字
-                        Text {
+                        // 占位符
+                        Column {
                             anchors.centerIn: parent
-                            text: modelData.localImagePath ? "" : "Waiting for Image..."
-                            color: "#999999"
                             visible: !modelData.localImagePath
+                            spacing: 5
+                            Text {
+                                text: "🖼️"
+                                font.pixelSize: 30;
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                            Text {
+                                text: "等待生成..."
+                                color: "#999999"
+                                font.pixelSize: 12
+                            }
                         }
 
-                        // 状态标签 (比如 "generating")
+                        // 加载指示器 (当状态为 generating 时显示)
+                        BusyIndicator {
+                            anchors.centerIn: parent
+                            running: modelData.status === "generating"
+                            visible: running
+                            scale: 0.6
+                        }
+
+                        // 状态标签
                         Rectangle {
                             anchors.top: parent.top
                             anchors.right: parent.right
@@ -107,37 +128,33 @@ Rectangle {
                             width: 80
                             height: 24
                             radius: 12
-                            // 【优化】根据状态变色
-                            color: modelData.status === "generated" ? "#E8F5E9" :
-                                                                      (modelData.status === "generating" ? "#E3F2FD" : "#FFF3E0")
+
+                            // 提取颜色逻辑
+                            color: getStatusColor(modelData.status)
 
                             Text {
                                 anchors.centerIn: parent
                                 text: modelData.status ? modelData.status.toUpperCase() : "PENDING"
-                                // 【优化】文字颜色也跟着变
-                                color: modelData.status === "generated" ? "#2E7D32" :
-                                                                          (modelData.status === "generating" ? "#1565C0" : "#EF6C00")
+                                color: getStatusTextColor(modelData.status)
                                 font.pixelSize: 10
                                 font.weight: Font.Bold
                             }
                         }
                     }
 
-                    // B. 中间：标题
+                    // B. 标题
                     Text {
-                        // 使用数据里的 sceneTitle
-                        text: modelData.sceneTitle
+                        text: modelData.sceneTitle || "未命名场景"
                         font.pixelSize: 18
                         font.weight: Font.Bold
                         color: "#333333"
                         Layout.fillWidth: true
-                        elide: Text.ElideRight //文字太长自动显示省略号
+                        elide: Text.ElideRight
                     }
 
-                    // C. 中间：旁白摘要
+                    // C. 旁白
                     Text {
-                        // 使用数据里的 narration
-                        text: modelData.narration
+                        text: modelData.narration || "暂无旁白..."
                         font.pixelSize: 14
                         color: "#666666"
                         Layout.fillWidth: true
@@ -146,11 +163,17 @@ Rectangle {
                         elide: Text.ElideRight
                     }
 
-                    // D. 底部：详情按钮
+                    // D. 编辑按钮
                     Button {
                         text: "编辑详情"
                         Layout.fillWidth: true
+                        // 使用浅色背景风格
+                        background: Rectangle {
+                            color: parent.down ? "#E0E0E0" : "#F5F5F5"
+                            radius: 6
+                        }
                         onClicked: {
+                            // 构造完整的 Payload
                             var shotPayload = {
                                 "shotId": modelData.shotId,
                                 "sceneTitle": modelData.sceneTitle,
@@ -158,10 +181,10 @@ Rectangle {
                                 "narration": modelData.narration,
                                 "localImagePath": modelData.localImagePath,
                                 "status": modelData.status,
+                                // 确保 transition 字段存在
                                 "transition": modelData.transition || "kenBurns"
                             };
-
-                            console.log("准备跳转，数据ID:", shotPayload.shotId);
+                            console.log("Router: 跳转详情 ->", shotPayload.shotId);
                             storyboardPage.navigateTo("shotDetail", shotPayload);
                         }
                     }
@@ -169,65 +192,87 @@ Rectangle {
             }
         }
 
+        // 底部操作栏
         RowLayout{
-            spacing: 10
+            spacing: 20
             Layout.alignment: Qt.AlignHCenter
+            Layout.bottomMargin: 10
+
+            // 返回按钮
+            Button {
+                text: "返回修改"
+                Layout.preferredWidth: 120
+                Layout.preferredHeight: 44
+
+                background: Rectangle {
+                    color: "transparent"
+                    border.color: "#CCCCCC"
+                    border.width: 1
+                    radius: 22
+                }
+                contentItem: Text {
+                    text: parent.text
+                    color: "#666666"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+                onClicked: storyboardPage.navigateTo("create", null)
+            }
 
             // 生成视频按钮
             Button {
-                text: "生成视频"
+                id: genVideoBtn
+                text: "生成最终视频"
+                Layout.preferredWidth: 160
+                Layout.preferredHeight: 44
+                enabled: !storyViewModel.isGenerating
 
                 background: Rectangle {
-                    color: parent.down ? "#E0E0E0" :
-                           parent.hovered ? "#1565C0" : "#1976D2"
-                    radius: 8
+                    radius: 22
+                    // 修正颜色：按下/悬停变深蓝，平时亮蓝
+                    color: {
+                        if (!genVideoBtn.enabled) return "#CCCCCC";
+                        if (genVideoBtn.down) return "#0D47A1";
+                        if (genVideoBtn.hovered) return "#1565C0";
+                        return "#1976D2";
+                    }
                 }
 
                 contentItem: Text {
                     text: parent.text
-                    font.pixelSize: 14
+                    font.weight: Font.Bold
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
 
                 onClicked: {
-                    // 调用 ViewModel 生成视频
-                    // 假设 projectData 里有 id 字段
                     if (storyboardPage.projectData && storyboardPage.projectData.id) {
-                        storyViewModel.generateVideo(storyboardPage.projectData.id)
-
-                        // 跳转去预览页
-                        storyboardPage.navigateTo("preview", null)
-                    } else {
-                        console.log("没有项目ID，无法生成视频")
+                        storyViewModel.generateVideo(storyboardPage.projectData.id);
+                        storyboardPage.navigateTo("preview", null);
                     }
                 }
             }
-            // 返回按钮
-            Button {
-                text: "返回创建页面"
+        }
+    }
 
-                background: Rectangle {
-                    color: parent.down ? "#E0E0E0" :
-                           parent.hovered ? "#F5F5F5" : "#FAFAFA"
-                    border.color: "#E0E0E0"
-                    border.width: 1
-                    radius: 8
-                }
+    // =========================================================
+    // 3. 辅助函数 (View Helpers)
+    // =========================================================
 
-                contentItem: Text {
-                    text: parent.text
-                    font.pixelSize: 14
-                    color: "#666666"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
+    function getStatusColor(status) {
+        switch(status) {
+            case "generated": return "#E8F5E9"; // 浅绿
+            case "generating": return "#E3F2FD"; // 浅蓝
+            default: return "#FFF3E0"; // 浅橙 (pending)
+        }
+    }
 
-                onClicked: {
-                    storyboardPage.navigateTo("create", null)
-                }
-            }
+    function getStatusTextColor(status) {
+        switch(status) {
+            case "generated": return "#2E7D32"; // 深绿
+            case "generating": return "#1565C0"; // 深蓝
+            default: return "#EF6C00"; // 深橙
         }
     }
 }

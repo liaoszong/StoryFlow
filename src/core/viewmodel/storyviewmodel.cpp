@@ -3,7 +3,7 @@
 #include <QJsonDocument>
 #include <QUrlQuery>
 
-// 定义常量，避免魔法字符串
+// *定义常量，避免魔法字符串
 namespace ApiConstants {
 const QString ENDPOINT_CREATE = "/api/story/generate";
 const QString ENDPOINT_CHECK_STATUS = "/api/check_status";
@@ -55,7 +55,7 @@ void StoryViewModel::createStory(const QString &prompt, const QString &style)
     setIsGenerating(true);
     setProgress(0);
     setStatusMessage("正在提交任务...");
-    m_currentTaskId.clear(); // 确保清理旧 ID
+    m_currentTaskId.clear(); // *确保清理旧 ID
 
     QJsonObject payload;
     payload["rawStory"] = prompt;

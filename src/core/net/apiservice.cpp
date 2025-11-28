@@ -4,7 +4,7 @@
 #include <QUrlQuery>
 
 // 定义远程服务器地址
-static const QString BASE_URL = "http://39.105.112.239";
+static const QString BASE_URL = "http://127.0.0.1:5000";
 
 ApiService::ApiService(QObject *parent)
     : QObject(parent)
@@ -85,11 +85,10 @@ void ApiService::get(const QString &endpoint, const QJsonObject &params, ApiResp
     // 1. 处理 GET 请求的查询参数 (将 QJsonObject 转换为 URLQuery)
     if (!params.isEmpty()) {
         QUrlQuery query;
-        QMapIterator<QString, QJsonValue> i(params.toVariantMap());
-        while (i.hasNext()) {
-            i.next();
-            // 假设参数值都是简单的字符串
-            query.addQueryItem(i.key(), i.value().toString());
+        for (auto it = params.constBegin(); it != params.constEnd(); ++it) {
+            // key() 返回参数名
+            // value().toVariant().toString() 能更安全地处理数字、布尔值等类型转字符串
+            query.addQueryItem(it.key(), it.value().toVariant().toString());
         }
         url.setQuery(query);
     }

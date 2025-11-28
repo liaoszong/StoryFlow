@@ -1,8 +1,6 @@
 import QtQuick
 import QtQuick.Window
-import "./Components/LeftPage"
-import "./Components/RightPage"
-import "./Components/TopPage"
+import "./Components"
 
 Window {
     id: mainWindow
@@ -20,11 +18,11 @@ Window {
     property string selectedStyle: ""
     property string storyText: ""
 
-    // 主内容容器 - 带圆角的矩形
+    // 主内容容器
     Rectangle {
         id: backgroundRect
         anchors.fill: parent
-        radius: 20  // 设置圆角半径
+        radius: 20
         color: "#F9FAFB"
         border.width: 1
         border.color: "#E0E0E0"
@@ -58,25 +56,20 @@ Window {
             anchors.left: home_left.right
             anchors.right: parent.right
             anchors.bottom: parent.bottom
+
+            // 属性绑定 (Props Down)
             currentPage: mainWindow.currentPage
             selectedStyle: mainWindow.selectedStyle
             storyText: mainWindow.storyText
 
-            onStyleSelected: function(style) {
-                mainWindow.selectedStyle = style
-            }
+            // 【MVVM 修正】删除 onStyleSelected 和 onGenerateStory
+            // 因为 RightPage 已经删除了这些信号，保留会导致 crash。
+            // 现在的逻辑是：子页面直接调 ViewModel，生成成功后 ViewModel 通知 RightPage 跳转。
 
-            onGenerateStory: {
-                // 模拟生成成功，导航到Storyboard
-                console.log("生成故事:", storyText, "风格:", selectedStyle)
-                mainWindow.currentPage = "storyboard"
-            }
-
-            // 添加导航信号处理
+            // 仅保留导航信号
             onNavigateTo: function(page) {
                 mainWindow.currentPage = page
             }
         }
     }
 }
-

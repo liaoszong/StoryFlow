@@ -3,26 +3,29 @@
 #include <QQmlContext>
 #include "core/net/ApiService.h"
 #include "core/viewmodel/StoryViewModel.h"
+#include "core/viewmodel/AssetsViewModel.h" // 【新增】引入头文件
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    // 1. 创建网络服务 (全局唯一)
+    // 1. 创建网络服务
     ApiService apiService;
-    // (如果已有 Token，可以在这里 setToken，或者后续通过登录 ViewModel 设置)
 
-    // 2. 创建 ViewModel，并注入网络服务
+    // 2. 创建 ViewModel
     StoryViewModel storyViewModel(&apiService);
+    AssetsViewModel assetsViewModel(&apiService); // 【新增】实例化
 
     QQmlApplicationEngine engine;
 
-    // 3. 将 ViewModel 注册给 QML
-    // 注意：以前是 backendService，现在我们按功能注册，更清晰
+    // 3. 注册上下文属性 (Context Property)
     engine.rootContext()->setContextProperty("storyViewModel", &storyViewModel);
+    engine.rootContext()->setContextProperty("assetsViewModel", &assetsViewModel); // 【新增】注册
 
-    // 如果之后有 assetsViewModel，也是这样注册：
-    // engine.rootContext()->setContextProperty("assetsViewModel", &assetsViewModel);
+    // 4. 加载 QML
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
+                     &app, []() { QCoreApplication::exit(-1); },
+                     Qt::QueuedConnection);
 
     engine.loadFromModule("StoryFlow", "Main");
 

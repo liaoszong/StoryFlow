@@ -4,168 +4,167 @@ import QtQuick.Layouts
 
 Rectangle {
     id: previewPage
-    color: "#F0F2F5"
+    color: "#121212" // 沉浸式深色背景
     bottomRightRadius: 20
 
-    // 接收从 RightPage 传来的项目数据
+    // 1. 数据输入
     property var currentProjectData: null
-    // 存储后端生成的渲染配置文件路径
-    property string renderConfigPath: ""
+    property var renderConfig: null // 播放器配置
 
     // 信号
     signal navigateTo(string page)
 
-    // 页面加载完成后，请求后端生成播放器需要的 JSON 配置
+    // 2. 初始化逻辑
     Component.onCompleted: {
         if (currentProjectData) {
-            console.log("PreviewPage: 请求生成渲染配置...", currentProjectData.id)
-            // 调用 Backend 函数 (需要在 C++ 中实现 generateRenderConfig)
-            backendService.generateRenderConfig(currentProjectData)
+            console.log("Preview: 构建实时渲染配置...")
+            // 【MVVM】调用 C++ 纯逻辑函数，获取播放器需要的 JSON
+            var config = storyViewModel.buildRenderConfig(currentProjectData)
+            previewPage.renderConfig = config
         }
     }
 
-    // 监听后端信号
-    Connections {
-        target: backendService
-        function onRenderConfigReady(configPath) {
-            console.log("PreviewPage: 收到配置文件路径 ->", configPath)
-            previewPage.renderConfigPath = "file:///" + configPath
-
-            // 如果此时播放器组件未被注释，可以在这里将 source 传给它
-            // player.configSource = previewPage.renderConfigPath
-            // player.play()
-        }
-    }
-
+    // 3. 界面布局
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 40
         spacing: 20
 
-        // 1. 标题区域
-        ColumnLayout {
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 5
-            Text {
-                text: "Preview"
-                font.pixelSize: 32
-                font.weight: Font.Bold
-                color: "#333333"
-                Layout.alignment: Qt.AlignHCenter
+        // 顶部栏
+        RowLayout {
+            Layout.fillWidth: true
+            Button {
+                text: "← 返回编辑"
+                background: Rectangle { color: "transparent" }
+                contentItem: Text { text: parent.text; color: "#AAAAAA"; font.pixelSize: 16 }
+                onClicked: previewPage.navigateTo("storyboard")
             }
+            Item { Layout.fillWidth: true }
             Text {
-                text: currentProjectData ? currentProjectData.name : "未命名项目"
-                font.pixelSize: 16
-                color: "#666666"
-                Layout.alignment: Qt.AlignHCenter
+                text: currentProjectData ? currentProjectData.name : "预览"
+                color: "white"; font.pixelSize: 18; font.weight: Font.Bold
             }
+            Item { Layout.fillWidth: true }
+            Item { width: 80 }
         }
 
-        // 2. 播放器区域 (占位符)
+        // 播放器区域
         Rectangle {
             id: playerContainer
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.maximumWidth: 800 // 限制最大宽度，保持 16:9 比例更佳
+            Layout.maximumWidth: 500 // 9:16 比例
             Layout.alignment: Qt.AlignHCenter
-
-            color: "#000000"
+            color: "black"
             radius: 12
             clip: true
 
-            // --- 实际播放器组件 (已注释) ---
+            // =================================================
+            // 【集成点】多媒体同学的播放器组件
+            // =================================================
+            // 假设组件名叫 StoryPlayer
             /*
             StoryPlayer {
-                id: player
+                id: realTimePlayer
                 anchors.fill: parent
-                // 将后端生成的 json 路径传给播放器
-                configSource: previewPage.renderConfigPath
+
+                // 核心：传入 ViewModel 构建好的配置
+                config: previewPage.renderConfig
+
+                // 自动播放
+                autoPlay: true
 
                 onPlaybackFinished: {
-                    console.log("播放结束")
+                    playBtn.visible = true
                 }
             }
             */
 
-            // --- 临时占位显示 ---
-            Column {
-                anchors.centerIn: parent
-                spacing: 15
-                visible: true // 当播放器被注释时显示这个
+            // --- 临时模拟播放器 (当组件没写好时用这个调试) ---
+            Item {
+                anchors.fill: parent
+                visible: true // 如果 StoryPlayer 好了，设为 false
 
-                Text {
-                    text: "▶️"
-                    font.pixelSize: 64
-                    color: "#666666"
+                Image {
+                    id: previewImg
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectCrop
+                    // 简单的幻灯片演示逻辑
+                    property int currentIndex: 0
+                    source: {
+                        if (renderConfig && renderConfig.track && renderConfig.track.length > 0) {
+                             return renderConfig.track[currentIndex].assets.image
+                        }
+                        return ""
+                    }
+
+                    // 模拟播放定时器
+                    Timer {
+                        running: previewPage.renderConfig !== null
+                        interval: 3000 // 3秒切一张
+                        repeat: true
+                        onTriggered: {
+                            if (!previewPage.renderConfig) return
+                            var len = previewPage.renderConfig.track.length
+                            previewImg.currentIndex = (previewImg.currentIndex + 1) % len
+                        }
+                    }
+                }
+
+                // 字幕层
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 40
                     anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width * 0.9
+                    height: 60
+                    color: "#80000000"
+                    radius: 8
+                    Text {
+                        anchors.centerIn: parent
+                        color: "white"
+                        width: parent.width - 20
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        // 模拟字幕
+                        text: {
+                            if (renderConfig && renderConfig.track) {
+                                return renderConfig.track[previewImg.currentIndex].assets.text
+                            }
+                            return "Loading..."
+                        }
+                    }
                 }
-
-                Text {
-                    text: previewPage.renderConfigPath ? "渲染配置已就绪\n" + previewPage.renderConfigPath : "正在准备渲染数据..."
-                    color: "#999999"
-                    font.pixelSize: 14
-                    horizontalAlignment: Text.AlignHCenter
-                }
-            }
-
-            // 加载指示器
-            BusyIndicator {
-                anchors.centerIn: parent
-                running: previewPage.renderConfigPath === ""
-                visible: running
             }
         }
 
-        // 3. 底部控制栏
+        // 底部栏
         RowLayout {
-            spacing: 20
+            Layout.fillWidth: true
+            Layout.maximumWidth: 500
             Layout.alignment: Qt.AlignHCenter
-            Layout.bottomMargin: 10
+            spacing: 20
 
-            // 导出视频按钮
             Button {
-                text: "导出成品视频 (Export)"
+                text: "导出成品视频 (MP4)"
+                Layout.fillWidth: true
+                Layout.preferredHeight: 50
 
                 background: Rectangle {
-                    color: parent.down ? "#1565C0" : (parent.hovered ? "#1565C0" : "#1976D2")
-                    radius: 8
+                    color: "#1976D2"
+                    radius: 25
                 }
-
                 contentItem: Text {
-                    text: parent.text
-                    font.pixelSize: 16
-                    color: "white"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
+                    text: parent.text; color: "white"; font.weight: Font.Bold; font.pixelSize: 16
+                    horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                 }
 
                 onClicked: {
-                    console.log("Exporting video for:", currentProjectData.id)
-                    // 这里未来可以调用 backendService.exportVideo(...)
-                }
-            }
-
-            // 返回按钮
-            Button {
-                text: "返回资产库"
-
-                background: Rectangle {
-                    color: parent.down ? "#E0E0E0" : (parent.hovered ? "#F5F5F5" : "#FAFAFA")
-                    border.color: "#E0E0E0"
-                    radius: 8
-                }
-
-                contentItem: Text {
-                    text: parent.text
-                    font.pixelSize: 16
-                    color: "#666666"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                onClicked: {
-                    // 通常预览页是从 Assets 或 Storyboard 来的，这里默认回 Assets，或者根据需求改
-                    previewPage.navigateTo("assets")
+                    // 调用后端真实渲染
+                    if (currentProjectData && currentProjectData.id) {
+                        console.log("请求后端渲染 MP4...")
+                        storyViewModel.exportVideo(currentProjectData.id)
+                    }
                 }
             }
         }
