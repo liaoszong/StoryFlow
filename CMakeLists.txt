@@ -31,14 +31,12 @@ qt_add_qml_module(appStoryFlow
         RESOURCES src/ui/res.qrc
         QML_FILES src/ui/Pages/PreviewPage.qml
         QML_FILES src/ui/Pages/ShotDetailPage.qml
-        SOURCES src/backend.h src/backend.cpp
         SOURCES
         SOURCES src/core/net/apiservice.h src/core/net/apiservice.cpp
         SOURCES src/core/viewmodel/storyviewmodel.h src/core/viewmodel/storyviewmodel.cpp
         SOURCES src/core/viewmodel/assetsviewmodel.h src/core/viewmodel/assetsviewmodel.cpp
         SOURCES src/core/player/timelinerenderer.h src/core/player/timelinerenderer.cpp
-        # src/ui/Pages/ShotDetail.qml
-        # src/ui/Pages/PreviewPage.qml
+
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
