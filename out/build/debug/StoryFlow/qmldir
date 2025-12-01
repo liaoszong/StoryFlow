@@ -1,0 +1,14 @@
+module StoryFlow
+typeinfo appStoryFlow.qmltypes
+prefer :/qt/qml/StoryFlow/
+Main 1.0 src/ui/Main.qml
+LeftPage 1.0 src/ui/Components/LeftPage/LeftPage.qml
+RightPage 1.0 src/ui/Components/RightPage/RightPage.qml
+TopPage 1.0 src/ui/Components/TopPage/TopPage.qml
+CreatePage 1.0 src/ui/Pages/CreatePage.qml
+StoryboardPage 1.0 src/ui/Pages/StoryboardPage.qml
+AssetsPage 1.0 src/ui/Pages/AssetsPage.qml
+PreviewPage 1.0 src/ui/Pages/PreviewPage.qml
+ShotDetailPage 1.0 src/ui/Pages/ShotDetailPage.qml
+depends QtQuick
+

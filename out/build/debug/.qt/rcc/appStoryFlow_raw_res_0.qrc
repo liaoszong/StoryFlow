@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qt/qml/StoryFlow/">
+    <file alias="src/ui/res.qrc">D:/GitHub/StoryFlow/src/ui/res.qrc</file>
+  </qresource>
+</RCC>
+

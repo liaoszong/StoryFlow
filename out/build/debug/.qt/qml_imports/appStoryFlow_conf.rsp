@@ -1,0 +1,16 @@
+-rootPath
+D:/GitHub/StoryFlow
+-cmake-output
+-output-file
+D:/GitHub/StoryFlow/out/build/debug/.qt/qml_imports/appStoryFlow_conf.cmake
+-importPath
+D:/GitHub/StoryFlow/out/build/debug/StoryFlow
+-importPath
+D:/GitHub/StoryFlow/out/build/debug
+-importPath
+D:/Qt6/6.10.1/msvc2022_64/qml
+-qrcFiles
+D:/GitHub/StoryFlow/out/build/debug/.qt/rcc/qmake_StoryFlow.qrc
+D:/GitHub/StoryFlow/out/build/debug/.qt/rcc/appStoryFlow_raw_qml_0.qrc
+D:/GitHub/StoryFlow/out/build/debug/.qt/rcc/appStoryFlow_raw_res_0.qrc
+D:/GitHub/StoryFlow/out/build/debug/.qt/rcc/appStoryFlow_raw_qml_0_extra_qmldirs.qrc

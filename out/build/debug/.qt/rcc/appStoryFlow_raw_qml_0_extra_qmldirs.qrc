@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="/qt/qml/StoryFlow/">
+    <file alias="src/ui/qmldir">D:/GitHub/StoryFlow/out/build/debug/StoryFlow/src/ui/qmldir</file>
+    <file alias="src/ui/Components/LeftPage/qmldir">D:/GitHub/StoryFlow/out/build/debug/StoryFlow/src/ui/Components/LeftPage/qmldir</file>
+    <file alias="src/ui/Components/RightPage/qmldir">D:/GitHub/StoryFlow/out/build/debug/StoryFlow/src/ui/Components/RightPage/qmldir</file>
+    <file alias="src/ui/Components/TopPage/qmldir">D:/GitHub/StoryFlow/out/build/debug/StoryFlow/src/ui/Components/TopPage/qmldir</file>
+    <file alias="src/ui/Pages/qmldir">D:/GitHub/StoryFlow/out/build/debug/StoryFlow/src/ui/Pages/qmldir</file>
+  </qresource>
+</RCC>
+
