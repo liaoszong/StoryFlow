@@ -16,10 +16,6 @@ set(src_and_dest_list
     "D:/GitHub/StoryFlow/out/build/debug/StoryFlow/src/ui/Pages/StoryboardPage.qml"
     "D:/GitHub/StoryFlow/src/ui/Pages/AssetsPage.qml"
     "D:/GitHub/StoryFlow/out/build/debug/StoryFlow/src/ui/Pages/AssetsPage.qml"
-    "D:/GitHub/StoryFlow/src/ui/Pages/PreviewPage.qml"
-    "D:/GitHub/StoryFlow/out/build/debug/StoryFlow/src/ui/Pages/PreviewPage.qml"
-    "D:/GitHub/StoryFlow/src/ui/Pages/ShotDetailPage.qml"
-    "D:/GitHub/StoryFlow/out/build/debug/StoryFlow/src/ui/Pages/ShotDetailPage.qml"
 
 )
 set(timestamp_file "D:/GitHub/StoryFlow/out/build/debug/.qt/appStoryFlow_qml.txt")

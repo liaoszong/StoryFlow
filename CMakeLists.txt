@@ -27,10 +27,10 @@ qt_add_qml_module(appStoryFlow
         src/ui/Pages/StoryboardPage.qml
         src/ui/Pages/AssetsPage.qml
         RESOURCES src/ui/res.qrc
-        QML_FILES src/ui/Pages/PreviewPage.qml
-        QML_FILES src/ui/Pages/ShotDetailPage.qml
+        src/ui/Pages/PreviewPage.qml
+        src/ui/Pages/ShotDetailPage.qml
         SOURCES src/backend.h src/backend.cpp
-        SOURCES
+        SOURCES src/FileManager/filemanager.cpp
         # src/ui/Pages/ShotDetail.qml
         # src/ui/Pages/PreviewPage.qml
 )

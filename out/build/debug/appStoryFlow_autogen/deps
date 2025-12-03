@@ -1,40 +1,46 @@
 appStoryFlow_autogen/timestamp: \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/assert.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/corecrt.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/corecrt_malloc.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/corecrt_memcpy_s.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/corecrt_memory.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/corecrt_search.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/corecrt_stdio_config.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/corecrt_wstdio.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/corecrt_wstdlib.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/corecrt_wstring.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/errno.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/stddef.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/stdio.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/stdlib.h \
-	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.22621.0/ucrt/string.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/assert.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/corecrt.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/corecrt_malloc.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/corecrt_memcpy_s.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/corecrt_memory.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/corecrt_search.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/corecrt_stdio_config.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/corecrt_wstdio.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/corecrt_wstdlib.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/corecrt_wstring.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/errno.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/stddef.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/stdio.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/stdlib.h \
+	C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.26100.0/ucrt/string.h \
 	D:/GitHub/StoryFlow/CMakeLists.txt \
 	D:/GitHub/StoryFlow/out/build/debug/.qt/qml_imports/appStoryFlow_conf.cmake \
-	D:/GitHub/StoryFlow/out/build/debug/CMakeFiles/3.30.5-msvc23/CMakeCXXCompiler.cmake \
-	D:/GitHub/StoryFlow/out/build/debug/CMakeFiles/3.30.5-msvc23/CMakeRCCompiler.cmake \
-	D:/GitHub/StoryFlow/out/build/debug/CMakeFiles/3.30.5-msvc23/CMakeSystem.cmake \
+	D:/GitHub/StoryFlow/out/build/debug/CMakeFiles/3.31.6-msvc6/CMakeCXXCompiler.cmake \
+	D:/GitHub/StoryFlow/out/build/debug/CMakeFiles/3.31.6-msvc6/CMakeRCCompiler.cmake \
+	D:/GitHub/StoryFlow/out/build/debug/CMakeFiles/3.31.6-msvc6/CMakeSystem.cmake \
+	D:/GitHub/StoryFlow/src/FileManager/FileManager.cpp \
+	D:/GitHub/StoryFlow/src/FileManager/FileManager.h \
 	D:/GitHub/StoryFlow/src/backend.cpp \
 	D:/GitHub/StoryFlow/src/backend.h \
 	D:/GitHub/StoryFlow/src/main.cpp \
 	D:/GitHub/StoryFlow/src/ui/res.qrc \
+	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QByteArray \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QFlags \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QIODevice \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QJsonArray \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QJsonDocument \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QJsonObject \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QList \
+	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QMap \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QMetaType \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QObject \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QSharedDataPointer \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QString \
+	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QStringList \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QUrl \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QVariant \
+	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/QVariantMap \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/q17memory.h \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/q20functional.h \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/q20iterator.h \
@@ -169,6 +175,7 @@ appStoryFlow_autogen/timestamp: \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/qutf8stringview.h \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/quuid.h \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/qvariant.h \
+	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/qvariantmap.h \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/qvarlengtharray.h \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/qversiontagging.h \
 	D:/Qt6/6.10.1/msvc2022_64/include/QtCore/qxptype_traits.h \
@@ -1101,76 +1108,80 @@ appStoryFlow_autogen/timestamp: \
 	D:/Qt6/6.10.1/msvc2022_64/lib/cmake/Qt6QuickTools/Qt6QuickToolsTargets-relwithdebinfo.cmake \
 	D:/Qt6/6.10.1/msvc2022_64/lib/cmake/Qt6QuickTools/Qt6QuickToolsTargets.cmake \
 	D:/Qt6/6.10.1/msvc2022_64/lib/cmake/Qt6QuickTools/Qt6QuickToolsVersionlessTargets.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeCXXInformation.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeCommonLanguageInclude.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeFindDependencyMacro.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeGenericSystem.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeInitializeConfigs.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeLanguageInformation.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeRCInformation.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeSystemSpecificInformation.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CMakeSystemSpecificInitialize.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CheckCXXCompilerFlag.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CheckCXXSourceCompiles.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CheckIncludeFileCXX.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/CheckLibraryExists.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Compiler/CMakeCommonCompilerMacros.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Compiler/MSVC-CXX.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Compiler/MSVC.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/FindPackageHandleStandardArgs.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/FindPackageMessage.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/FindThreads.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/FindVulkan.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/GNUInstallDirs.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Internal/CheckCompilerFlag.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Internal/CheckFlagCommonConfig.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Internal/CheckSourceCompiles.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Platform/Windows-Initialize.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Platform/Windows-MSVC-CXX.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Platform/Windows-MSVC.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Platform/Windows.cmake \
-	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.30/Modules/Platform/WindowsPaths.cmake \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/algorithm \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/array \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/atomic \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/cassert \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/chrono \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/climits \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/cmath \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/concurrencysal.h \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/cstddef \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/cstdint \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/cstdlib \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/cstring \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/functional \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/initializer_list \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/iterator \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/limits \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/limits.h \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/list \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/map \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/memory \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/new \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/numeric \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/optional \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/sal.h \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/set \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/stdarg.h \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/stdbool.h \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/string \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/string_view \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/tuple \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/type_traits \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/unordered_map \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/unordered_set \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/utility \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/vadefs.h \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/variant \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/vcruntime.h \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/vcruntime_string.h \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/vector \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/version \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/yvals.h \
-	D:/VS_FREE/VC/Tools/MSVC/14.43.34808/include/yvals_core.h \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeCXXInformation.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeCommonLanguageInclude.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeFindDependencyMacro.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeGenericSystem.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeInitializeConfigs.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeLanguageInformation.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeRCInformation.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeSystemSpecificInformation.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeSystemSpecificInitialize.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCXXCompilerFlag.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCXXSourceCompiles.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckIncludeFileCXX.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckLibraryExists.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Compiler/CMakeCommonCompilerMacros.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Compiler/MSVC-CXX.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Compiler/MSVC.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindPackageHandleStandardArgs.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindPackageMessage.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindVulkan.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/GNUInstallDirs.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CMakeCXXLinkerInformation.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CMakeCommonLinkerInformation.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckCompilerFlag.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckFlagCommonConfig.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Platform/Linker/Windows-MSVC-CXX.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Platform/Linker/Windows-MSVC.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Platform/Windows-Initialize.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Platform/Windows-MSVC-CXX.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Platform/Windows-MSVC.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Platform/Windows.cmake \
+	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Platform/WindowsPaths.cmake \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/algorithm \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/array \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/atomic \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/cassert \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/chrono \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/climits \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/cmath \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/concurrencysal.h \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/cstddef \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/cstdint \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/cstdlib \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/cstring \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/functional \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/initializer_list \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/iterator \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/limits \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/limits.h \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/list \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/map \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/memory \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/new \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/numeric \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/optional \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/sal.h \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/set \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/stdarg.h \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/stdbool.h \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/string \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/string_view \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/tuple \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/type_traits \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/unordered_map \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/unordered_set \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/utility \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/vadefs.h \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/variant \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/vcruntime.h \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/vcruntime_string.h \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/vector \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/version \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/yvals.h \
+	D:/VS_FREE/VC/Tools/MSVC/14.44.35207/include/yvals_core.h \
 	D:/VS_FREE/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe

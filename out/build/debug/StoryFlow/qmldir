@@ -8,7 +8,5 @@ TopPage 1.0 src/ui/Components/TopPage/TopPage.qml
 CreatePage 1.0 src/ui/Pages/CreatePage.qml
 StoryboardPage 1.0 src/ui/Pages/StoryboardPage.qml
 AssetsPage 1.0 src/ui/Pages/AssetsPage.qml
-PreviewPage 1.0 src/ui/Pages/PreviewPage.qml
-ShotDetailPage 1.0 src/ui/Pages/ShotDetailPage.qml
 depends QtQuick
 
