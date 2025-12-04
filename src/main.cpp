@@ -2,31 +2,38 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
-#include "Backend.h"
+#include "core/net/apiservice.h"
+#include "core/viewmodel/storyviewmodel.h"
+#include "core/viewmodel/assetsviewmodel.h"
+#include "core/video/videogenerator.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-
-    // 设置样式为 "Basic"，允许自定义按钮和输入框的背景色
     QQuickStyle::setStyle("Basic");
 
-    // 创建后端实例
-    Backend backend;
+    // 1. 创建网络服务
+    ApiService apiService;
+
+    // 2. 创建 ViewModel
+    StoryViewModel storyViewModel(&apiService);
+    AssetsViewModel assetsViewModel(&apiService);
+
+    // 3. 创建视频生成器
+    VideoGenerator videoGenerator;
 
     QQmlApplicationEngine engine;
 
-    // 把 backend 注册给 QML，起名叫 "backendService"
-    engine.rootContext()->setContextProperty("backendService", &backend);
+    // 4. 注册上下文属性 (Context Property)
+    engine.rootContext()->setContextProperty("storyViewModel", &storyViewModel);
+    engine.rootContext()->setContextProperty("assetsViewModel", &assetsViewModel);
+    engine.rootContext()->setContextProperty("videoGenerator", &videoGenerator);
 
-    QObject::connect(
-        &engine,
-        &QQmlApplicationEngine::objectCreationFailed,
-        &app,
-        []() { QCoreApplication::exit(-1); },
-        Qt::QueuedConnection);
+    // 5. 加载 QML
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
+                     &app, []() { QCoreApplication::exit(-1); },
+                     Qt::QueuedConnection);
 
-    // 加载 QML
     engine.loadFromModule("StoryFlow", "Main");
 
     return app.exec();
