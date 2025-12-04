@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>Resources/img/Double_square.png</file>
+        <file>Resources/img/minus_sign.png</file>
+        <file>Resources/img/multiplication_sign.png</file>
+    </qresource>
+</RCC>

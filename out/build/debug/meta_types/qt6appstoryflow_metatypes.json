@@ -1,0 +1,293 @@
+[
+    {
+        "classes": [
+            {
+                "className": "Backend",
+                "lineNumber": 11,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "prompt",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "style",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 2,
+                        "lineNumber": 18,
+                        "name": "createStory",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "qualifiedClassName": "Backend",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "projectData",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 0,
+                        "lineNumber": 22,
+                        "name": "storyCreated",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "message",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 1,
+                        "lineNumber": 24,
+                        "name": "errorOccurred",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "backend.h",
+        "outputRevision": 69
+    },
+    {
+        "classes": [
+            {
+                "className": "FileManager",
+                "lineNumber": 13,
+                "object": true,
+                "qualifiedClassName": "FileManager",
+                "signals": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "operation",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "result",
+                                "type": "QVariant"
+                            },
+                            {
+                                "name": "context",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 0,
+                        "lineNumber": 204,
+                        "name": "operationCompleted",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "operation",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "error",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "context",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 1,
+                        "lineNumber": 210,
+                        "name": "operationFailed",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "percent",
+                                "type": "int"
+                            },
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 2,
+                        "lineNumber": 216,
+                        "name": "exportProgress",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "videoUrl",
+                                "type": "QUrl"
+                            },
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 3,
+                        "lineNumber": 217,
+                        "name": "exportFinished",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "error",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 4,
+                        "lineNumber": 218,
+                        "name": "exportError",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "status",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "report",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 5,
+                        "lineNumber": 221,
+                        "name": "projectHealthChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "issues",
+                                "type": "QVariantList"
+                            }
+                        ],
+                        "index": 6,
+                        "lineNumber": 222,
+                        "name": "repairNeeded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 7,
+                        "lineNumber": 223,
+                        "name": "integrityCheckStarted",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "report",
+                                "type": "QVariantMap"
+                            }
+                        ],
+                        "index": 8,
+                        "lineNumber": 224,
+                        "name": "integrityCheckFinished",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "videoData",
+                                "type": "QByteArray"
+                            }
+                        ],
+                        "index": 9,
+                        "lineNumber": 229,
+                        "name": "startExportVideoAsync",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 10,
+                        "lineNumber": 231,
+                        "name": "cancelExportOperation",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "projectId",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 11,
+                        "lineNumber": 233,
+                        "name": "startIntegrityScan",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "FileManager.h",
+        "outputRevision": 69
+    }
+]

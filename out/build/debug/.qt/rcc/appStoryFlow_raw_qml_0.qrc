@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="/qt/qml/StoryFlow/">
+    <file alias="src/ui/Main.qml">D:/GitHub/StoryFlow/src/ui/Main.qml</file>
+    <file alias="src/ui/Components/LeftPage/LeftPage.qml">D:/GitHub/StoryFlow/src/ui/Components/LeftPage/LeftPage.qml</file>
+    <file alias="src/ui/Components/RightPage/RightPage.qml">D:/GitHub/StoryFlow/src/ui/Components/RightPage/RightPage.qml</file>
+    <file alias="src/ui/Components/TopPage/TopPage.qml">D:/GitHub/StoryFlow/src/ui/Components/TopPage/TopPage.qml</file>
+    <file alias="src/ui/Pages/CreatePage.qml">D:/GitHub/StoryFlow/src/ui/Pages/CreatePage.qml</file>
+    <file alias="src/ui/Pages/StoryboardPage.qml">D:/GitHub/StoryFlow/src/ui/Pages/StoryboardPage.qml</file>
+    <file alias="src/ui/Pages/AssetsPage.qml">D:/GitHub/StoryFlow/src/ui/Pages/AssetsPage.qml</file>
+  </qresource>
+</RCC>
+

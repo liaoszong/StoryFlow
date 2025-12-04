@@ -1,0 +1,3 @@
+set(__QT_DEPLOY_TARGET_appStoryFlow_FILE D:/GitHub/StoryFlow/out/build/debug/appStoryFlow.exe)
+set(__QT_DEPLOY_TARGET_appStoryFlow_TYPE EXECUTABLE)
+set(__QT_DEPLOY_TARGET_appStoryFlow_RUNTIME_DLLS D:/Qt6/6.10.1/msvc2022_64/bin/Qt6QuickControls2d.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6QuickTemplates2d.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6Quickd.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6OpenGLd.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6QmlMetad.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6QmlWorkerScriptd.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6Guid.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6QmlModelsd.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6Qmld.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6Networkd.dll;D:/Qt6/6.10.1/msvc2022_64/bin/Qt6Cored.dll)

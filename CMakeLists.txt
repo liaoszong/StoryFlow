@@ -95,6 +95,7 @@ qt_add_qml_module(appStoryFlow
         src/core/player/timelinerenderer.h src/core/player/timelinerenderer.cpp
         src/core/player/engine/storyengine.h src/core/player/engine/storyengine.cpp
         src/core/video/videogenerator.h src/core/video/videogenerator.cpp
+        src/FileManager/filemanager.cpp
 )
 
 set_target_properties(appStoryFlow PROPERTIES

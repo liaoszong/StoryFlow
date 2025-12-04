@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="/qt/qml/StoryFlow/">
+    <file alias="src/ui/res.qrc">D:/GitHub/StoryFlow/src/ui/res.qrc</file>
+    <file alias="src/ui/Pages/PreviewPage.qml">D:/GitHub/StoryFlow/src/ui/Pages/PreviewPage.qml</file>
+    <file alias="src/ui/Pages/ShotDetailPage.qml">D:/GitHub/StoryFlow/src/ui/Pages/ShotDetailPage.qml</file>
+  </qresource>
+</RCC>
+

@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qt/qml/StoryFlow">
+    <file alias="qmldir">D:/GitHub/StoryFlow/out/build/debug/StoryFlow/qmldir</file>
+  </qresource>
+</RCC>
+
