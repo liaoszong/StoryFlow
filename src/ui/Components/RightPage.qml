@@ -42,8 +42,12 @@ Rectangle {
         onLoaded: {
             if (!item) return
 
+            console.log("RightPage onLoaded: currentPage =", home_right.currentPage)
+            console.log("RightPage onLoaded: currentProjectData =", JSON.stringify(home_right.currentProjectData))
+
             // 注入项目数据
             if (item.hasOwnProperty("currentProjectData")) {
+                console.log("RightPage: Injecting currentProjectData to page")
                 item.currentProjectData = home_right.currentProjectData
             }
             if (item.hasOwnProperty("projectData")) {
@@ -80,7 +84,8 @@ Rectangle {
         id: loadingOverlay
         anchors.fill: parent
         color: Qt.rgba(255, 255, 255, 0.95)
-        visible: storyViewModel.isGenerating
+        // preview 页面有自己的加载状态，不显示全局遮罩
+        visible: storyViewModel.isGenerating && currentPage !== "preview"
         z: 100
 
         Column {
@@ -125,10 +130,19 @@ Rectangle {
         ignoreUnknownSignals: true
 
         function onNavigateTo(page, payload) {
+            console.log("RightPage Connections.onNavigateTo: page =", page, "payload =", JSON.stringify(payload))
+
             // 保存分镜数据
             if (page === "shotDetail" && payload) {
                 home_right.currentShotData = payload
             }
+            // 保存项目数据（用于 preview 页面）
+            if (page === "preview" && payload) {
+                home_right.currentProjectData = payload
+                console.log("RightPage: 设置 currentProjectData for preview")
+            }
+
+            // 发出导航信号，让 Main.qml 更新 currentPage
             home_right.navigateTo(page)
         }
     }

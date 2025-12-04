@@ -284,8 +284,8 @@ Rectangle {
 
                 onClicked: {
                     if (storyboardPage.projectData && storyboardPage.projectData.id) {
-                        storyViewModel.generateVideo(storyboardPage.projectData.id)
-                        storyboardPage.navigateTo("preview", null)
+                        // 跳转到预览页，传递完整的项目数据
+                        storyboardPage.navigateTo("preview", storyboardPage.projectData)
                     }
                 }
             }

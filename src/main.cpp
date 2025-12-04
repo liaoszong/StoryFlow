@@ -2,9 +2,10 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
-#include "core/net/ApiService.h"
-#include "core/viewmodel/StoryViewModel.h"
-#include "core/viewmodel/AssetsViewModel.h" // 【新增】引入头文件
+#include "core/net/apiservice.h"
+#include "core/viewmodel/storyviewmodel.h"
+#include "core/viewmodel/assetsviewmodel.h"
+#include "core/video/videogenerator.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,15 +17,19 @@ int main(int argc, char *argv[])
 
     // 2. 创建 ViewModel
     StoryViewModel storyViewModel(&apiService);
-    AssetsViewModel assetsViewModel(&apiService); // 【新增】实例化
+    AssetsViewModel assetsViewModel(&apiService);
+
+    // 3. 创建视频生成器
+    VideoGenerator videoGenerator;
 
     QQmlApplicationEngine engine;
 
-    // 3. 注册上下文属性 (Context Property)
+    // 4. 注册上下文属性 (Context Property)
     engine.rootContext()->setContextProperty("storyViewModel", &storyViewModel);
-    engine.rootContext()->setContextProperty("assetsViewModel", &assetsViewModel); // 【新增】注册
+    engine.rootContext()->setContextProperty("assetsViewModel", &assetsViewModel);
+    engine.rootContext()->setContextProperty("videoGenerator", &videoGenerator);
 
-    // 4. 加载 QML
+    // 5. 加载 QML
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
                      &app, []() { QCoreApplication::exit(-1); },
                      Qt::QueuedConnection);

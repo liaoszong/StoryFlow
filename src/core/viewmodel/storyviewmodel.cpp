@@ -29,7 +29,7 @@ StoryViewModel::StoryViewModel(ApiService *apiService, QObject *parent)
     connect(m_pollTimer, &QTimer::timeout, this, &StoryViewModel::checkTaskStatus);
 }
 
-// ... Setter 实现保持不变 ...
+//
 void StoryViewModel::setIsGenerating(bool status) {
     if (m_isGenerating == status) return;
     m_isGenerating = status;
