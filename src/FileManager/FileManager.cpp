@@ -1,4 +1,4 @@
-#include "FileManager.h"
+﻿#include "FileManager.h"
 #include <QStandardPaths>
 #include <QDir>
 #include <QFile>
@@ -8,9 +8,12 @@
 #include <QJsonArray>
 #include <QCryptographicHash>
 #include <QDateTime>
-#include <QDebug> // ��־ϵͳ
+#include <QImage>
+#include <QVariant> 
+#include <QVariantMap>
+#include <QDebug> // 日志系统
 
-// --- �ڲ��������� ---
+// --- 内部辅助常量 ---
 const QString APP_DIR_NAME = "StoryToVideo-PC-LocalDocs";
 const QString USERS_DIR_NAME = "Users";
 const QString PROJECTS_DIR_NAME = "projects";
@@ -20,6 +23,8 @@ const QString EXPORT_DIR_NAME = "export";
 const QString CACHE_DIR_NAME = "cache";
 const QString THUMBNAILS_CACHE_DIR_NAME = "thumbnails";
 const QString APP_CACHE_DIR_NAME = "app";
+const QString MODELS_DIR_NAME = "models";       // 新增：应用缓存-模型
+const QString RESOURCES_DIR_NAME = "resources"; // 新增：应用缓存-资源
 const QString TEMP_DIR_NAME = "temp";
 
 const QString PROJECT_HEALTH_FILE_NAME = "projectHealth.json";
@@ -31,14 +36,14 @@ const QString SHOT_HEALTH_FILE_NAME = "shotHealth.json";
 const QString STAGING_IMAGE_SUFFIX = "_image_draft.png";
 const QString STAGING_AUDIO_SUFFIX = "_audio_draft.mp3";
 
-const int HASH_PREFIX_LENGTH = 2; // ������Ŀ¼������
+const int HASH_PREFIX_LENGTH = 2; // 缓存子目录名长度
 
-// --- ����/���� ---
+// --- 构造/析构 ---
 
-FileManager::FileManager(QObject* parent, const QString& customBasePath)
+FileManager::FileManager(QObject* parent, const QString& customBasePath, const QString& userId)
     : QObject(parent)
 {
-    // ��ʼ���洢Ŀ¼�Ļ���·����֧���Զ���·��
+    // 初始化存储目录的基础路径，支持自定义路径
     if (!customBasePath.isEmpty()) {
         m_baseAppPath = customBasePath;
     }
@@ -47,72 +52,241 @@ FileManager::FileManager(QObject* parent, const QString& customBasePath)
         m_baseAppPath = QDir(standardAppDataPath).filePath(APP_DIR_NAME);
     }
 
-    // ȷ����Ӧ��Ŀ¼������Ŀ¼����
+    // 确保主应用目录及其子目录存在
     ensureDir(m_baseAppPath);
-    ensureDir(getUserBasePath()); // �����û�Ŀ¼�ڴ˲㼶�£�����Ҫ��̬��ȡ��ǰ�û� hash
+    setCurrentUserId(userId);
+
+    ensureDir(getUserBasePath()); // 假设用户目录在此层级下，或需要动态获取当前用户 hash
     ensureDir(getProjectsBasePath());
     ensureDir(getCacheBasePath());
     ensureDir(getCacheThumbnailBasePath());
     ensureDir(getAppCacheBasePath());
     ensureDir(getTempBasePath());
 
+
     qDebug() << "FileManager initialized with base path:" << m_baseAppPath;
 }
 
-// ��������ʱ���л�����·��
-void FileManager::setBaseAppPath(const QString& customBasePath)
+bool FileManager::initUserDirectories()
 {
-    if (!customBasePath.isEmpty()) {
-        m_baseAppPath = customBasePath;
-        // ���� ensureDir ����Ŀ¼
-        ensureDir(m_baseAppPath);
-        ensureDir(getUserBasePath());
-        ensureDir(getProjectsBasePath());
-        ensureDir(getCacheBasePath());
-        ensureDir(getCacheThumbnailBasePath());
-        ensureDir(getAppCacheBasePath());
-        ensureDir(getTempBasePath());
+    // 假设 getUserBasePath() 已经存在
+    QString userBase = getUserBasePath();
+
+    // 检查基础路径是否已设置（如果 m_currentUserHash 为空，则可能返回空路径，但通常在构造函数中已处理）
+    if (userBase.isEmpty()) {
+        qWarning() << "FileManager: User base path is empty. Cannot initialize directories.";
+        return false;
     }
+
+    // --- 1. 用户基础目录 ---
+    bool ok = ensureDir(userBase);
+
+    // --- 2. 项目和缓存根目录 ---
+    ok &= ensureDir(userBase + QDir::separator() + PROJECTS_DIR_NAME);
+    ok &= ensureDir(getCacheBasePath()); // 缓存根目录 (cache/)
+
+    // --- 3. 缩略图缓存根目录 ---
+    ok &= ensureDir(getCacheThumbnailBasePath()); // cache/thumbnails/
+
+    // --- 4. 应用级缓存目录 ---
+    ok &= ensureDir(getAppCachePath());         // cache/app/
+    ok &= ensureDir(getAppCacheModelsPath());   // cache/app/models/
+    ok &= ensureDir(getAppCacheResourcesPath()); // cache/app/resources/
+
+    if (!ok) {
+        qWarning() << "FileManager: Failed to create one or more critical user directories.";
+    }
+
+    return ok;
+}
+
+// 自定义用户 ID 的设置和切换逻辑
+void FileManager::setCurrentUserId(const QString& userId) {
+    // 确保哈希值至少有默认值
+    m_currentUserHash = hashString(userId.trimmed());
+
+    // 1. 尝试初始化用户目录结构
+        // 假设 initUserDirectories() 会调用 ensureDir 创建所有必要目录
+    bool success = initUserDirectories();
+
+    QVariantMap context;
+    context["userId"] = userId;
+    context["userHash"] = m_currentUserHash;
+
+    if (success) {
+        qDebug() << "FileManager: User switched. Hash:" << m_currentUserHash;
+        // 信号触发：操作完成
+        emit operationCompleted("setCurrentUserId", QVariant(m_currentUserHash), context);
+    }
+    else {
+        qWarning() << "FileManager: Failed to set up directories for user:" << userId;
+        // 信号触发：操作失败
+        emit operationFailed("setCurrentUserId", "Failed to create user directory structure.", context);
+    }
+}
+
+// 获取项目临时文件路径 (projectRoot/staging/temp)
+QString FileManager::getProjectStagingTempPath(const QString& projectId) const
+{
+    return getProjectStagingBasePath(projectId) + QDir::separator() + TEMP_DIR_NAME;
+}
+
+// 获取缩略图缓存路径 (cacheRoot/thumbnails/{hash_prefix})
+QString FileManager::getCacheThumbnailPath(const QString& id) const
+{
+    QString idHash = hashString(id);
+    // 使用哈希值的前两位作为子目录，分散文件
+    QString hashPrefix = idHash.left(2);
+    return getCacheBasePath() + QDir::separator() + THUMBNAILS_CACHE_DIR_NAME + QDir::separator() + hashPrefix;
+}
+
+// 获取应用缓存路径 (cacheRoot/app)
+QString FileManager::getAppCachePath() const
+{
+    return getCacheBasePath() + QDir::separator() + APP_CACHE_DIR_NAME;
+}
+
+// 获取应用模型缓存路径 (cacheRoot/app/models)
+QString FileManager::getAppCacheModelsPath() const
+{
+    return getAppCachePath() + QDir::separator() + MODELS_DIR_NAME;
+}
+
+// 获取应用资源缓存路径 (cacheRoot/app/resources)
+QString FileManager::getAppCacheResourcesPath() const
+{
+    return getAppCachePath() + QDir::separator() + RESOURCES_DIR_NAME;
+}
+
+
+// 程序运行时可切换基础路径
+//void FileManager::setBaseAppPath(const QString& customBasePath)
+//{
+//    if (!customBasePath.isEmpty()) {
+//        m_baseAppPath = customBasePath;
+//        // 重新 ensureDir 各子目录
+//        ensureDir(m_baseAppPath);
+//        ensureDir(getUserBasePath());
+//        ensureDir(getProjectsBasePath());
+//        ensureDir(getCacheBasePath());
+//        ensureDir(getCacheThumbnailBasePath());
+//        ensureDir(getAppCacheBasePath());
+//        ensureDir(getTempBasePath());
+//    }
+//}
+
+// 哈希工具函数，用于生成用户ID、项目ID等的SHA256哈希值
+QString FileManager::hashString(const QString& input) const {
+    if (input.isEmpty()) {
+        // "anonymous" 的 SHA256 哈希
+        return QString(QCryptographicHash::hash("anonymous", QCryptographicHash::Sha256).toHex());
+    }
+    QByteArray data = input.toUtf8();
+    return QString(QCryptographicHash::hash(data, QCryptographicHash::Sha256).toHex());
 }
 
 
 
 
-QString FileManager::getUserBasePath() const {
-    // ע�⣺������һ��������ȡ��ǰ�û��� hash����ʵ��Ӧ���п������Ե�¼��Ϣ�������ط���
+//QString FileManager::getUserBasePath() const {
+//    QString currentUserIdHash = QCryptographicHash::hash(getCurrentUserId().toUtf8(), QCryptographicHash::Md5).toHex().left(HASH_PREFIX_LENGTH * 2); // 使用MD5并取前N位字符作为哈希值
+//    return QDir(m_baseAppPath).filePath(USERS_DIR_NAME + "/" + "user_" + currentUserIdHash);
+//}
 
-    QString currentUserIdHash = "user_default"; // ʾ��ֵ����Ҫ�滻Ϊ��ʵ�߼�
-    return QDir(m_baseAppPath).filePath(USERS_DIR_NAME + "/" + currentUserIdHash);
+// 获取用户目录的基础路径 (appRoot/Users/user_{hash})
+QString FileManager::getUserBasePath() const
+{
+    // 确保使用 m_currentUserHash 成员变量
+    return m_baseAppPath + QDir::separator() + USERS_DIR_NAME + QDir::separator() + "user_" + m_currentUserHash;
 }
 
 QString FileManager::getProjectsBasePath() const {
     return QDir(getUserBasePath()).filePath(PROJECTS_DIR_NAME);
 }
 
+QString FileManager::getCacheThumbnailFilePath(const QString& id) const
+{
+    // 文件名格式: {id_hash}_thumbnail.jpg
+    QString fileName = hashString(id) + "_thumbnail.jpg";
+    return getCacheThumbnailPath(id) + QDir::separator() + fileName;
+}
 
-// --- ˽�и������� ---
+
+// 修改 saveCacheThumbnail
+bool FileManager::saveCacheThumbnail(const QString& id, const QImage& thumbnail) const
+{
+    QString dirPath = getCacheThumbnailPath(id);
+    QString filePath = getCacheThumbnailFilePath(id);
+
+    // 确保哈希前缀的子目录存在
+    if (!ensureDir(dirPath)) {
+        emit operationFailed("saveCacheThumbnail", "Failed to create directory: " + dirPath, QVariantMap());
+        return false;
+    }
+
+    // 后续保存逻辑：将 QImage 写入文件
+    // 缩略图使用较低质量的 JPG 格式 (85) 存储以节省空间。
+    if (!thumbnail.save(filePath, "JPG", 85)) {
+        // 保存失败，触发 operationFailed
+        emit operationFailed("saveCacheThumbnail", "Failed to save image to: " + filePath, QVariantMap());
+        return false;
+    }
+
+    // 保存成功，触发 operationCompleted
+    QVariantMap context;
+    context["id"] = id;
+
+    // operationCompleted 信号需要 3 个参数：操作名, 结果, 上下文
+    // 结果 (result) 可以是保存的文件路径
+    emit operationCompleted("saveCacheThumbnail", filePath, context);
+
+    return true;
+}
+
+// --- 私有辅助函数 ---
 
 QString FileManager::getCacheBasePath() const {
     return QDir(m_baseAppPath).filePath(CACHE_DIR_NAME);
 }
 
-QString FileManager::ensureDir(const QString& dirPath) {
+//QString FileManager::ensureDir(const QString& dirPath) {
+//    QDir dir(dirPath);
+//    if (!dir.exists()) {
+//        if (!dir.mkpath(".")) {
+//            qWarning() << "Failed to create directory:" << dirPath;
+//            // 需要抛出异常或设置错误状态
+//        }
+//    }
+//    return dirPath;
+//}
+
+bool FileManager::ensureDir(const QString& dirPath) const
+{
     QDir dir(dirPath);
     if (!dir.exists()) {
-        if (!dir.mkpath(".")) {
-            qWarning() << "Failed to create directory:" << dirPath;
-            // ��Ҫ�׳��쳣�����ô���״̬
+        // 将 dirPath 本身作为参数传递给 mkpath，或者直接在 QDir 对象上调用 mkpath(dirPath)
+        if (!dir.mkpath(dirPath)) {
+            qWarning() << "FileManager: Failed to create directory:" << dirPath;
+            return false;
         }
     }
-    return dirPath;
+    return true;
 }
 
+
+
 QString FileManager::getProjectRootPath(const QString& projectId) const {
-    return QDir(getProjectsBasePath()).filePath(projectId);
+    //return QDir(getProjectsBasePath()).filePath(projectId);
+    return getUserBasePath()
+        + QDir::separator() + PROJECTS_DIR_NAME
+        + QDir::separator() + "proj_" + projectId;
 }
 
 QString FileManager::getShotRootPath(const QString& projectId, const QString& shotId) const {
-    return QDir(getProjectRootPath(projectId)).filePath(SHOTS_DIR_NAME + "/" + shotId);
+    //return QDir(getProjectRootPath(projectId)).filePath(SHOTS_DIR_NAME + "/" + shotId);
+    return getProjectRootPath(projectId)
+        + QDir::separator() + SHOTS_DIR_NAME
+        + QDir::separator() + "shot_" + shotId; // <-- 严格控制命名
 }
 
 QString FileManager::getShotImagePath(const QString& projectId, const QString& shotId) const {
@@ -220,18 +394,18 @@ bool FileManager::moveFile(const QString& sourcePath, const QString& destination
 }
 
 
-// --- ��Ŀ���ӿ�ʵ�� ---
+// --- 项目级接口实现 ---
 
 QUrl FileManager::saveProjectThumbnail(const QString& projectId, const QByteArray& thumbnailData) {
     QString projectThumbPath = getProjectThumbnailPath(projectId);
 
-    // ȷ����Ŀ����ͼ�ļ����ڵ�Ŀ¼����
+    // 确保项目缩略图文件所在的目录存在
     QFileInfo fileInfo(projectThumbPath);
     QDir dir = fileInfo.dir();
     if (!dir.exists()) {
-        if (!dir.mkpath(".")) { // mkpath(".") �ᴴ�� dir ��������·��
+        if (!dir.mkpath(".")) { // mkpath(".") 会创建 dir 所代表的路径
             QString errorStr = QString("Failed to create directory for thumbnail: %1").arg(dir.path());
-            qWarning() << errorStr; // ������־��¼
+            qWarning() << errorStr; // 添加日志记录
             emit operationFailed("saveProjectThumbnail", errorStr, { {"projectId", projectId}, {"targetDirectory", dir.path()} });
             return QUrl();
         }
@@ -276,7 +450,7 @@ QByteArray FileManager::loadProjectThumbnail(const QString& projectId) {
 QUrl FileManager::saveProjectHealthSnapshot(const QString& projectId, const QJsonObject& metadata) {
     QString snapshotPath = getProjectHealthSnapshotPath(projectId);
 
-    // ȷ����Ŀ���������ļ����ڵ�Ŀ¼����
+    // 确保项目健康快照文件所在的目录存在
     QFileInfo fileInfo(snapshotPath);
     QDir dir = fileInfo.dir();
     if (!dir.exists()) {
@@ -327,17 +501,48 @@ QJsonObject FileManager::loadProjectHealthSnapshot(const QString& projectId) {
     return QJsonObject(); // Return empty object on failure
 }
 
-bool FileManager::deleteProject(const QString& projectId) {
+//bool FileManager::deleteProject(const QString& projectId) {
+//    QString projectPath = getProjectRootPath(projectId);
+//    if (QDir(projectPath).removeRecursively()) {
+//        emit operationCompleted("deleteProject", QVariant(true), { {"projectId", projectId} });
+//        return true;
+//    }
+//    else {
+//        QString errorStr = QString("Failed to remove project directory: %1").arg(projectPath);
+//        emit operationFailed("deleteProject", errorStr, { {"projectId", projectId} });
+//        return false;
+//    }
+//}
+
+// 假设 getProjectRootPath() 存在
+
+// 删除整个项目（异步安全，含 shots/staging/export）
+bool FileManager::deleteProject(const QString& projectId)
+{
+    const QString operation = "deleteProject";
     QString projectPath = getProjectRootPath(projectId);
-    if (QDir(projectPath).removeRecursively()) {
-        emit operationCompleted("deleteProject", QVariant(true), { {"projectId", projectId} });
+    QDir projectDir(projectPath);
+
+    QVariantMap context;
+    context["projectId"] = projectId;
+
+    if (!projectDir.exists()) {
+        // 如果目录不存在，视为成功
+        emit operationCompleted(operation, QVariant(true), context);
         return true;
     }
-    else {
-        QString errorStr = QString("Failed to remove project directory: %1").arg(projectPath);
-        emit operationFailed("deleteProject", errorStr, { {"projectId", projectId} });
-        return false;
+
+    // 递归删除目录内容及本身
+    if (projectDir.removeRecursively()) {
+        context["path"] = projectPath;
+        // 信号触发：操作完成
+        emit operationCompleted(operation, QVariant(true), context);
+        return true;
     }
+
+    // 信号触发：操作失败
+    emit operationFailed(operation, "Failed to recursively delete project directory.", context);
+    return false;
 }
 
 bool FileManager::updateIntegrityData(const QString& projectId, const QString& filePath, const QString& checksum) {
@@ -457,11 +662,11 @@ QVariantMap FileManager::verifyProjectFilesAgainstManifest(const QString& projec
 
 
 
-// --- �־����ӿ�ʵ�� (��ʽ��: shots/) ---
+// --- 分镜级接口实现 (正式区: shots/) ---
 
 QUrl FileManager::saveShotImage(const QString& projectId, const QString& shotId, const QByteArray& imageData) {
     QString imagePath = getShotImagePath(projectId, shotId);
-    ensureDir(QFileInfo(imagePath).absolutePath()); // ȷ���־�Ŀ¼����
+    ensureDir(QFileInfo(imagePath).absolutePath()); // 确保分镜目录存在
 
     QFile file(imagePath);
     if (file.open(QIODevice::WriteOnly)) {
@@ -480,7 +685,7 @@ QUrl FileManager::saveShotImage(const QString& projectId, const QString& shotId,
         QString errorStr = QString("Cannot open file for writing: %1").arg(imagePath);
         emit operationFailed("saveShotImage", errorStr, { {"projectId", projectId}, {"shotId", shotId} });
     }
-    return QUrl(); //ʧ��ʱ������ЧURL
+    return QUrl(); //失败时返回无效URL
 }
 
 QByteArray FileManager::loadShotImage(const QString& projectId, const QString& shotId) {
@@ -567,7 +772,7 @@ QJsonObject FileManager::loadShotHealthSnapshot(const QString& projectId, const 
 }
 
 
-// --- ��ʱ�������ӿ�ʵ�� (staging/) ---
+// --- 临时生成区接口实现 (staging/) ---
 
 QUrl FileManager::stageImage(const QString& projectId, const QString& shotId, const QByteArray& imageData) {
     QString stagingPath = getStagingImagePath(projectId, shotId);
@@ -666,7 +871,7 @@ bool FileManager::cleanupStagingForProject(const QString& projectId) {
 }
 
 
-// --- �������ӿ�ʵ�� (export/) ---
+// --- 导出区接口实现 (export/) ---
 
 QUrl FileManager::saveExportedVideoAsync(const QString& projectId, const QByteArray& videoData) {
     // This is the synchronous part, actual async would be in startExportVideoAsync
@@ -702,6 +907,8 @@ QUrl FileManager::saveExportedVideoAsync(const QString& projectId, const QByteAr
 
 QUrl FileManager::saveExportedVideoToCustomPath(const QString& customAbsolutePath, const QByteArray& videoData) {
     // Validate custom path? Ensure parent dir exists?
+    ensureDir(QFileInfo(customAbsolutePath).absolutePath());
+
     QFile file(customAbsolutePath);
     if (file.open(QIODevice::WriteOnly)) {
         qint64 written = file.write(videoData);
@@ -724,7 +931,7 @@ QUrl FileManager::saveExportedVideoToCustomPath(const QString& customAbsolutePat
 }
 
 
-// --- �������ӿ�ʵ�� (cache/) ---
+// --- 缓存区接口实现 (cache/) ---
 
 bool FileManager::cleanupThumbnailCache(const QString& /* projectId */) { // TODO: Implement per-project cleanup if needed
     // This example cleans all thumbnails. Modify logic if projectId-specific cleaning is required.
@@ -782,7 +989,7 @@ void FileManager::cleanupAppCache() {
 }
 
 
-// --- ��������ָ��ӿ�ʵ�� ---
+// --- 错误检测与恢复接口实现 ---
 
 QVariantMap FileManager::validateProjectIntegrity(const QString& projectId) {
     // This could be a wrapper around verifyProjectFilesAgainstManifest or do more checks
@@ -950,7 +1157,7 @@ bool FileManager::repairShotStatus(const QString& projectId, const QString& shot
 }
 
 
-// --- ͨ�ù��߽ӿ�ʵ�� ---
+// --- 通用工具接口实现 ---
 
 bool FileManager::fileExists(const QUrl& fileUrl) const {
     return fileExists(fileUrl.toString()); // Delegate to internal helper
@@ -1027,7 +1234,7 @@ void FileManager::cleanupTempFiles() {
 }
 
 
-// --- �����ۺ���ʵ�� ---
+// --- 公共槽函数实现 ---
 
 void FileManager::startExportVideoAsync(const QString& projectId, const QByteArray& videoData) {
     // In a real async implementation, you'd launch this in a separate thread
@@ -1051,7 +1258,7 @@ void FileManager::startIntegrityScan(const QString& projectId) {
 }
 
 
-// --- �ڲ��ָ�����ʵ�� (ʾ��) ---
+// --- 内部恢复策略实现 (示例) ---
 
 bool FileManager::rebuildMetadataJson(const QString& projectId) {
     // Very basic rebuild example - only checks for existing shot dirs and thumbnail

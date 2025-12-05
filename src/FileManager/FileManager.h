@@ -1,4 +1,4 @@
-// FileManager.h
+ï»¿// FileManager.h
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 
@@ -16,263 +16,290 @@ class FileManager : public QObject
 
 public:
 
-    //¹¹ÔìÀı×Ó£ºFileManager* mgr = new FileManager(nullptr, "D:/MyDocs/StoryToVideo");
-    // parent¸¸¶ÔÏó£¬customBasePathÎª¿ÉÑ¡²ÎÊı£¬ÓÃÓÚÉèÖÃ×Ô¶¨ÒåµÄ»ù´¡Â·¾¶£¬Ä¬ÈÏÎªÓÃ»§ÎÄµµÏÂµÄÌØ¶¨×ÓÄ¿Â¼
-    // Ä¬ÈÏÄ¿Â¼±ÈÈçC:\Users\LIU\AppData\Local\Temp\StoryToVideo_TestEnv\Users\user_default\projects
-    explicit FileManager(QObject* parent = nullptr, const QString& customBasePath = QString());
-
-    //ÔÚÔËĞĞÊ±ÇĞ»»»ù´¡Â·¾¶£¬Ä¿Ç°½öÓÃÓÚ²âÊÔ»·¾³£¬Ôİ²»Ö§³ÖÊµ¼Ê²Ù×÷
-    void setBaseAppPath(const QString& customBasePath);
+    // æ„é€ ä¾‹å­ï¼šFileManager* mgr = new FileManager(nullptr, "D:/MyDocs/StoryToVideo");
+    // parentçˆ¶å¯¹è±¡ï¼ŒcustomBasePathä¸ºå¯é€‰å‚æ•°ï¼Œç”¨äºè®¾ç½®è‡ªå®šä¹‰çš„åŸºç¡€è·¯å¾„ï¼Œé»˜è®¤ä¸ºç”¨æˆ·æ–‡æ¡£ä¸‹çš„ç‰¹å®šå­ç›®å½•
+    // é»˜è®¤ç›®å½•æ¯”å¦‚C:\Users\LIU\AppData\Local\Temp\StoryToVideo_TestEnv\Users\user_default\projects
+    explicit FileManager(QObject* parent = nullptr, const QString& customBasePath = QString(), const QString& userId = "");
 
 
-    QString getUserBasePath() const; // »ñÈ¡ÓÃ»§¼¶»ù´¡Â·¾¶£¬²âÊÔÓÃ£¬Êµ¼ÊÓ¦ÓÃÖĞÓ¦¶¯Ì¬»ñÈ¡µ±Ç°ÓÃ»§
-    QString getProjectsBasePath() const; // »ñÈ¡ËùÓĞÏîÄ¿»ù´¡Â·¾¶£¬²âÊÔÓÃ
+
+    //åœ¨è¿è¡Œæ—¶åˆ‡æ¢åŸºç¡€è·¯å¾„ï¼Œç›®å‰ä»…ç”¨äºæµ‹è¯•ç¯å¢ƒï¼Œæš‚ä¸æ”¯æŒå®é™…æ“ä½œ
+    //void setBaseAppPath(const QString& customBasePath); 
+    QString getUserBasePath() const; // è·å–ç”¨æˆ·çº§åŸºç¡€è·¯å¾„(æµ‹è¯•ç”¨
+    QString getProjectsBasePath() const; // è·å–æ‰€æœ‰é¡¹ç›®åŸºç¡€è·¯å¾„(æµ‹è¯•ç”¨
 
 
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
-    // ¡¾ÏîÄ¿¼¶¡¿
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+    // â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
+    //ã€ç”¨æˆ·çº§ã€‘
+    //â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
+    // è®¾ç½®å½“å‰ç”¨æˆ·IDï¼Œå¹¶åˆ›å»ºç›¸åº”çš„ç”¨æˆ·ç›®å½•ç»“æ„
+    void setCurrentUserId(const QString& userId);
+    bool initUserDirectories();
 
-    // ±£´æÏîÄ¿·âÃæËõÂÔÍ¼£¬·µ»Ø file:// URI
-        // thumbnailData Ó¦Îª JPEG/JPGµÈ ¸ñÊ½µÄ¶ş½øÖÆÊı¾İ
+
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ã€é¡¹ç›®çº§ã€‘
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    // ä¿å­˜é¡¹ç›®å°é¢ç¼©ç•¥å›¾ï¼Œè¿”å› file:// URI
+    // thumbnailData åº”ä¸º JPEG/JPGç­‰ æ ¼å¼çš„äºŒè¿›åˆ¶æ•°æ®
     QUrl saveProjectThumbnail(
         const QString& projectId,
         const QByteArray& thumbnailData
     );
 
-    // ¶ÁÈ¡·âÃæÍ¼
-        // Èç¹ûÊ§°Ü·µ»Ø¿Õ QByteArray
+    // è¯»å–å°é¢å›¾
+    // å¦‚æœå¤±è´¥è¿”å›ç©º QByteArray
     QByteArray loadProjectThumbnail(const QString& projectId);
 
-    // ±£´æÏîÄ¿½¡¿µ×´Ì¬¿ìÕÕ£¬·µ»Ø file:// URI
-        // Èç¹û metadata °üº¬ÍêÕûµÄ ProjectState ×Ó¼¯Ôò¸²¸Ç±£´æ£¬·ñÔò½ö¸üĞÂÖ¸¶¨×Ö¶Î
+    // ä¿å­˜é¡¹ç›®å¥åº·çŠ¶æ€å¿«ç…§ï¼Œè¿”å› file:// URI
+    // å¦‚æœ metadata åŒ…å«å®Œæ•´çš„ ProjectState å­é›†åˆ™è¦†ç›–ä¿å­˜ï¼Œå¦åˆ™ä»…æ›´æ–°æŒ‡å®šå­—æ®µ
     QUrl saveProjectHealthSnapshot(
         const QString& projectId,
-        const QJsonObject& metadata // ¶ÔÓ¦ ProjectState ×Ó¼¯
+        const QJsonObject& metadata // å¯¹åº” ProjectState å­é›†
     );
 
-    // ¶ÁÈ¡ÏîÄ¿¿ìÕÕ
+    // è¯»å–é¡¹ç›®å¿«ç…§
     QJsonObject loadProjectHealthSnapshot(const QString& projectId);
 
-    // É¾³ıÕû¸öÏîÄ¿£¨Òì²½°²È«£¬º¬ shots/staging/export£©
-        // Èç¹û³É¹¦É¾³ı¾Í·µ»Ø true
+    QString getProjectStagingTempPath(const QString& projectId) const; // é¡¹ç›®ä¸´æ—¶æ–‡ä»¶ç›®å½•
+
+    // åˆ é™¤æ•´ä¸ªé¡¹ç›®ï¼ˆå¼‚æ­¥å®‰å…¨ï¼Œå« shots/staging/exportï¼‰
+    // å¦‚æœæˆåŠŸåˆ é™¤å°±è¿”å› true
     bool deleteProject(const QString& projectId);
 
-    // ¸üĞÂÏîÄ¿×´Ì¬¿ìÕÕÖĞµÄÍêÕûĞÔĞ£ÑéÊı¾İ
-        // ³É¹¦¾Í·µ»Ø true
+    // æ›´æ–°é¡¹ç›®çŠ¶æ€å¿«ç…§ä¸­çš„å®Œæ•´æ€§æ ¡éªŒæ•°æ®
+    // æˆåŠŸå°±è¿”å› true
     bool updateIntegrityData(
         const QString& projectId,
         const QString& filePath,
         const QString& checksum
     );
 
-    // ¸ù¾İÔ¤ÆÚÎÄ¼şÇåµ¥ÑéÖ¤ÏîÄ¿ÍêÕûĞÔ£¬Î´×÷²âÊÔ
+    // æ ¹æ®é¢„æœŸæ–‡ä»¶æ¸…å•éªŒè¯é¡¹ç›®å®Œæ•´æ€§ï¼Œæœªä½œæµ‹è¯•
     QVariantMap verifyProjectFilesAgainstManifest(const QString& projectId);
 
 
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
-    // ¡¾·Ö¾µ¼¶¡¿£¨ÕıÊ½Çø£ºshots/£©
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ã€åˆ†é•œçº§ã€‘ï¼ˆæ­£å¼åŒºï¼šshots/ï¼‰
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    // ±£´æÍ¼Ïñ£¬·µ»Ø file:// URI,ÒÔÏÂËùÓĞ±£´æº¯Êı¾ùÀàËÆ·µ»Ø
-        // Ê§°ÜÊ±»á·µ»ØÎŞĞ§µÄ QUrl£¬¼´ url.isValid() == false
+    // ä¿å­˜å›¾åƒï¼Œè¿”å› file:// URI,ä»¥ä¸‹æ‰€æœ‰ä¿å­˜å‡½æ•°å‡ç±»ä¼¼è¿”å›
+    // å¤±è´¥æ—¶ä¼šè¿”å›æ— æ•ˆçš„ QUrlï¼Œå³ url.isValid() == false
     QUrl saveShotImage(
         const QString& projectId,
         const QString& shotId,
         const QByteArray& imageData
     );
 
-    // ¶ÁÈ¡·Ö¾µÍ¼Ïñ
+    // è¯»å–åˆ†é•œå›¾åƒ
     QByteArray loadShotImage(const QString& projectId, const QString& shotId);
 
-    // ±£´æÒôÆµ
-        // audioData Ó¦Îª MP3 µÈ¸ñÊ½µÄ¶ş½øÖÆÊı¾İ
+    // ä¿å­˜éŸ³é¢‘
+    // audioData åº”ä¸º MP3 ç­‰æ ¼å¼çš„äºŒè¿›åˆ¶æ•°æ®
     QUrl saveShotAudio(
         const QString& projectId,
         const QString& shotId,
         const QByteArray& audioData
     );
 
-    // ±£´æ·Ö¾µ×´Ì¬¿ìÕÕ
+    // ä¿å­˜åˆ†é•œçŠ¶æ€å¿«ç…§
     QUrl saveShotHealthSnapshot(
         const QString& projectId,
         const QString& shotId,
         const QJsonObject& statusInfo
     );
 
-    // ¼ÓÔØ·Ö¾µ¿ìÕÕ
+    // åŠ è½½åˆ†é•œå¿«ç…§
     QJsonObject loadShotHealthSnapshot(
         const QString& projectId,
         const QString& shotId
     );
 
 
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
-    // ¡¾ÁÙÊ±Éú³ÉÇø¡¿staging/ ¹ÜÀí£¨±ÈÈçAI Éú³ÉÊ±£©
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ã€ä¸´æ—¶ç”ŸæˆåŒºã€‘staging/ ç®¡ç†ï¼ˆæ¯”å¦‚AI ç”Ÿæˆæ—¶ï¼‰
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    // ±£´æÍ¼Ïñ²İ¸å ·µ»Ø file:// URI
-        // °ÑAIÉú³ÉµÄÍ¼ÏñÊı¾İÏÈ´æµ½ staging Çø£¬´ıÈ·ÈÏºóÔÙÒÆµ½ÕıÊ½Çø
+    // ä¿å­˜å›¾åƒè‰ç¨¿ è¿”å› file:// URI
+    // æŠŠAIç”Ÿæˆçš„å›¾åƒæ•°æ®å…ˆå­˜åˆ° staging åŒºï¼Œå¾…ç¡®è®¤åå†ç§»åˆ°æ­£å¼åŒº
     QUrl stageImage(
         const QString& projectId,
         const QString& shotId,
         const QByteArray& imageData
     );
 
-    // ±£´æÒôÆµ²İ¸å
+    // ä¿å­˜éŸ³é¢‘è‰ç¨¿
     QUrl stageAudio(
         const QString& projectId,
         const QString& shotId,
         const QByteArray& audioData
     );
 
-    // ½« staging ²İ¸åÌá½»ÎªÕıÊ½×Ê²ú£¨ÒÆ¶¯ÎÄ¼ş + ÇåÀí staging£©
+    // å°† staging è‰ç¨¿æäº¤ä¸ºæ­£å¼èµ„äº§ï¼ˆç§»åŠ¨æ–‡ä»¶ + æ¸…ç† stagingï¼‰
     /// mediaType: "image" | "audio"
-        /// Èç¹û³É¹¦ÒÆ¶¯²¢ÇåÀíÔ­À´stagingÇø¶ÔÓ¦ÎÄ¼ş£¬¾Í·µ»Ø true
+    /// å¦‚æœæˆåŠŸç§»åŠ¨å¹¶æ¸…ç†åŸæ¥stagingåŒºå¯¹åº”æ–‡ä»¶ï¼Œå°±è¿”å› true
     bool commitStagedMedia(
         const QString& projectId,
         const QString& shotId,
         const QString& mediaType
     );
 
-    // ÇåÀíÕû¸öµ¥¸öÏîÄ¿ staging Çø£¨ÈçÓÃ»§È¡ÏûÉú³É£©
+    // æ¸…ç†æ•´ä¸ªå•ä¸ªé¡¹ç›® staging åŒºï¼ˆå¦‚ç”¨æˆ·å–æ¶ˆç”Ÿæˆï¼‰
     bool cleanupStagingForProject(const QString& projectId);
 
 
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
-    // ¡¾µ¼³öÇø¡¿export/ ¹ÜÀí
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ã€å¯¼å‡ºåŒºã€‘export/ ç®¡ç†
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    // ±£´æµ¼³öÊÓÆµµ½ÏîÄ¿Ä¬ÈÏÂ·¾¶ exportÄ¿Â¼ÖĞ£¬·µ»Ø file:// URI
+    // ä¿å­˜å¯¼å‡ºè§†é¢‘åˆ°é¡¹ç›®é»˜è®¤è·¯å¾„ exportç›®å½•ä¸­ï¼Œè¿”å› file:// URI
     QUrl saveExportedVideoAsync(
         const QString& projectId,
         const QByteArray& videoData
     );
 
-    // ±£´æµ¼³öÊÓÆµµ½×Ô¶¨ÒåÂ·¾¶£¨×¢£º´ËÂ·¾¶¿ÉÄÜ²»ÔÚÏîÄ¿Ä¿Â¼ÄÚ£©
+    // ä¿å­˜å¯¼å‡ºè§†é¢‘åˆ°è‡ªå®šä¹‰è·¯å¾„ï¼ˆæ³¨ï¼šæ­¤è·¯å¾„å¯èƒ½ä¸åœ¨é¡¹ç›®ç›®å½•å†…ï¼‰
+    // è¦æä¾›ä¸€ä¸ªå®Œæ•´çš„æ–‡ä»¶è·¯å¾„ï¼ŒåŒ…æ‹¬æ–‡ä»¶åå’Œæ‰©å±•å
     QUrl saveExportedVideoToCustomPath(
         const QString& customAbsolutePath,
         const QByteArray& videoData
     );
 
 
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
-    // ¡¾»º´æÇø¡¿cache/ ¹ÜÀí
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ã€ç¼“å­˜åŒºã€‘cache/ ç®¡ç†
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    // ÇåÀíÖ¸¶¨ÏîÄ¿µÄËõÂÔÍ¼»º´æ
+    bool saveCacheThumbnail(const QString& id, const QImage& thumbnail) const;
+
+    // æ¸…ç†æŒ‡å®šé¡¹ç›®çš„ç¼©ç•¥å›¾ç¼“å­˜
     bool cleanupThumbnailCache(const QString& projectId);
 
-    // ÇåÀíËùÓĞ¹ıÆÚµÄËõÂÔÍ¼»º´æ£¨¸ù¾İÊ±¼ä´Á£©
+    // æ¸…ç†æ‰€æœ‰è¿‡æœŸçš„ç¼©ç•¥å›¾ç¼“å­˜ï¼ˆæ ¹æ®æ—¶é—´æˆ³ï¼‰
     void cleanupExpiredThumbnails(int expirationDays);
 
-    // ÇåÀíÓ¦ÓÃ¼¶»º´æ£¨ÀıÈçAIÄ£ĞÍ¡¢¹«¹²×ÊÔ´µÈ£©
+    // æ¸…ç†åº”ç”¨çº§ç¼“å­˜ï¼ˆä¾‹å¦‚AIæ¨¡å‹ã€å…¬å…±èµ„æºç­‰ï¼‰
     void cleanupAppCache();
 
 
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
-    // ¡¾´íÎó¼ì²âÓë»Ö¸´¡¿
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
-    QVariantMap validateProjectIntegrity(const QString& projectId);         // ¼ì²éÏîÄ¿ÍêÕûĞÔ
-    bool attemptProjectRecovery(const QString& projectId);                  // ³¢ÊÔ×Ô¶¯ĞŞ¸´ÏîÄ¿
-    QVariantMap getProjectHealthReport(const QString& projectId);           // »ñÈ¡ÏîÄ¿½¡¿µ×´Ì¬±¨¸æ
-    bool validateFileIntegrity(const QUrl& fileUrl, const QString& expectedChecksum = ""); // ÑéÖ¤µ¥¸öÎÄ¼şÍêÕûĞÔ
-    QVariantMap validateShotStatus(const QString& projectId, const QString& shotId);       // ¼ì²âµ¥¸ö·Ö¾µµÄ×´Ì¬Ò»ÖÂĞÔ
-    bool repairShotStatus(const QString& projectId, const QString& shotId);         // ĞŞ¸´µ¥¸ö·Ö¾µµÄ×´Ì¬
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ã€é”™è¯¯æ£€æµ‹ä¸æ¢å¤ã€‘
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    QVariantMap validateProjectIntegrity(const QString& projectId);         // æ£€æŸ¥é¡¹ç›®å®Œæ•´æ€§
+    bool attemptProjectRecovery(const QString& projectId);                  // å°è¯•è‡ªåŠ¨ä¿®å¤é¡¹ç›®
+    QVariantMap getProjectHealthReport(const QString& projectId);           // è·å–é¡¹ç›®å¥åº·çŠ¶æ€æŠ¥å‘Š
+    bool validateFileIntegrity(const QUrl& fileUrl, const QString& expectedChecksum = ""); // éªŒè¯å•ä¸ªæ–‡ä»¶å®Œæ•´æ€§
+    QVariantMap validateShotStatus(const QString& projectId, const QString& shotId);       // æ£€æµ‹å•ä¸ªåˆ†é•œçš„çŠ¶æ€ä¸€è‡´æ€§
+    bool repairShotStatus(const QString& projectId, const QString& shotId);         // ä¿®å¤å•ä¸ªåˆ†é•œçš„çŠ¶æ€
 
 
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
-    // ¡¾Í¨ÓÃ¹¤¾ß¡¿
-    // ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ã€é€šç”¨å·¥å…·ã€‘
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    // ¼ì²é file:// URI ¶ÔÓ¦µÄ±¾µØÎÄ¼şÊÇ·ñ´æÔÚ
+    // æ£€æŸ¥ file:// URI å¯¹åº”çš„æœ¬åœ°æ–‡ä»¶æ˜¯å¦å­˜åœ¨
     bool fileExists(const QUrl& fileUrl) const;
 
-    // ÁĞ³öÄ³ÏîÄ¿ÏÂËùÓĞ·Ö¾µ ID£¨É¨Ãè shots/ Ä¿Â¼£©
+    // åˆ—å‡ºæŸé¡¹ç›®ä¸‹æ‰€æœ‰åˆ†é•œ IDï¼ˆæ‰«æ shots/ ç›®å½•ï¼‰
     QStringList listShotIds(const QString& projectId) const;
 
-    // ÁĞ³öËùÓĞÏîÄ¿ ID£¨É¨Ãè projects/ Ä¿Â¼£©
+    // åˆ—å‡ºæ‰€æœ‰é¡¹ç›® IDï¼ˆæ‰«æ projects/ ç›®å½•ï¼‰
     QStringList listProjIds() const;
 
-    // ÇåÀíÁÙÊ±ÎÄ¼ş£¨>24h µÄ cache/temp/ ºÍ projects/*/staging/£©
+    // æ¸…ç†ä¸´æ—¶æ–‡ä»¶ï¼ˆ>24h çš„ cache/temp/ å’Œ projects/*/staging/ï¼‰
     void cleanupTempFiles();
 
 
 signals:
 
-    // Í¨ÓÃ²Ù×÷½á¹û
+    // é€šç”¨æ“ä½œç»“æœ
     void operationCompleted(
-        const QString& operation,   // ²Ù×÷Ãû£¬Èç "saveShotImage"
-        const QVariant& result,     // ²Ù×÷½á¹û£¬Èç ±£´æ³É¹¦ºóµÄQUrl
-        const QVariantMap& context  // ²Ù×÷ÉÏÏÂÎÄ£¬Èç {"projectId": "proj_123", "shotId": "shot_1"}
-    );
+        const QString& operation,   // æ“ä½œåï¼Œå¦‚ "saveShotImage"
+        const QVariant& result,     // æ“ä½œç»“æœï¼Œå¦‚ ä¿å­˜æˆåŠŸåçš„QUrl
+        const QVariantMap& context  // æ“ä½œä¸Šä¸‹æ–‡ï¼Œå¦‚ {"projectId": "proj_123", "shotId": "shot_1"}
+    )const;
 
     void operationFailed(
         const QString& operation,
         const QString& error,
-        const QVariantMap& context);
+        const QVariantMap& context) const;
 
-    // ÎÄ¼ş²Ù×÷½ø¶È£¨ÓÃÓÚ´óÎÄ¼şµ¼³ö£©
-    void exportProgress(int percent, const QString& projectId);
-    void exportFinished(const QUrl& videoUrl, const QString& projectId);
-    void exportError(const QString& error, const QString& projectId);
+    // æ–‡ä»¶æ“ä½œè¿›åº¦ï¼ˆç”¨äºå¤§æ–‡ä»¶å¯¼å‡ºï¼‰
+    void exportProgress(int percent, const QString& projectId) const;
+    void exportFinished(const QUrl& videoUrl, const QString& projectId) const;
+    void exportError(const QString& error, const QString& projectId) const;
 
-    // ½¡¿µ¼à¿ØĞÅºÅ
-    void projectHealthChanged(const QString& projectId, const QString& status, const QVariantMap& report);
-    void repairNeeded(const QString& projectId, const QVariantList& issues);
-    void integrityCheckStarted(const QString& projectId);
-    void integrityCheckFinished(const QString& projectId, const QVariantMap& report);
+    // å¥åº·ç›‘æ§ä¿¡å·
+    void projectHealthChanged(const QString& projectId, const QString& status, const QVariantMap& report) const;
+    void repairNeeded(const QString& projectId, const QVariantList& issues) const;
+    void integrityCheckStarted(const QString& projectId) const;
+    void integrityCheckFinished(const QString& projectId, const QVariantMap& report) const;
 
 
 public slots:
-    // Òì²½µ¼³ö£¨±ÜÃâ×èÈû UI£©
+
+
+
+    // å¼‚æ­¥å¯¼å‡ºï¼ˆé¿å…é˜»å¡ UIï¼‰
     void startExportVideoAsync(const QString& projectId, const QByteArray& videoData);
-    // È¡ÏûÕıÔÚ½øĞĞµÄµ¼³ö²Ù×÷
+    // å–æ¶ˆæ­£åœ¨è¿›è¡Œçš„å¯¼å‡ºæ“ä½œ
     void cancelExportOperation(const QString& projectId);
-    // ÃÖ²¹ÎÄµµÖĞÒÅÂ©µÄÒì²½ÍêÕûĞÔÉ¨Ãè²Ûº¯Êı
+    // å¼¥è¡¥æ–‡æ¡£ä¸­é—æ¼çš„å¼‚æ­¥å®Œæ•´æ€§æ‰«ææ§½å‡½æ•°
     void startIntegrityScan(const QString& projectId);
 
 
 private:
 
-    QString m_baseAppPath; // Ó¦ÓÃ»ù´¡Â·¾¶£¨¿É¶¨ÖÆ£©
+    QString m_baseAppPath; // åº”ç”¨åŸºç¡€è·¯å¾„ï¼ˆå¯å®šåˆ¶ï¼‰
+    QString m_currentUserHash; // å­˜å‚¨å½“å‰ç”¨æˆ·çš„å“ˆå¸Œå€¼
 
-    // ¸¨Öúº¯ÊıºÍÄÚ²¿ÊµÏÖ
-    bool fileExists(const QString& filePathOrUrl) const; // ÖØÔØ£¬ÄÚ²¿µ÷ÓÃ
+    // è¾…åŠ©å‡½æ•°å’Œå†…éƒ¨å®ç°
+    bool fileExists(const QString& filePathOrUrl) const; // é‡è½½ï¼Œå†…éƒ¨è°ƒç”¨
 
-    QString ensureDir(const QString& dirPath); // È·±£Ä¿Â¼´æÔÚ£¬·ñÔò´´½¨£¬Ê¹ÓÃ QDir/QFileInfo
-    QString getCacheBasePath() const; // »ñÈ¡»º´æ»ùÂ·¾¶
-    QString getProjectRootPath(const QString& projectId) const; // »ñÈ¡ÏîÄ¿¸ùÄ¿Â¼Â·¾¶£¨±¾µØ¾ø¶ÔÂ·¾¶£¬½öÓÃÓÚÄÚ²¿¼ÆËã£©
-    QString getShotRootPath(const QString& projectId, const QString& shotId) const; // »ñÈ¡·Ö¾µ¸ùÄ¿Â¼Â·¾¶
-    QString getShotImagePath(const QString& projectId, const QString& shotId) const; // »ñÈ¡Í¼ÏñÎÄ¼şÂ·¾¶£¨±¾µØ¾ø¶ÔÂ·¾¶£©
-    QString getShotAudioPath(const QString& projectId, const QString& shotId) const; // »ñÈ¡ÒôÆµÎÄ¼şÂ·¾¶
-    QString getShotHealthSnapshotPath(const QString& projectId, const QString& shotId) const; // »ñÈ¡·Ö¾µ¿ìÕÕÂ·¾¶
-    QString getProjectHealthSnapshotPath(const QString& projectId) const; // »ñÈ¡ÏîÄ¿¿ìÕÕÂ·¾¶
-    QString getProjectThumbnailPath(const QString& projectId) const; // »ñÈ¡ÏîÄ¿ËõÂÔÍ¼Â·¾¶
-    QString getStagingImagePath(const QString& projectId, const QString& shotId) const; // »ñÈ¡Í¼Ïñ²İ¸åÂ·¾¶
-    QString getStagingAudioPath(const QString& projectId, const QString& shotId) const; // »ñÈ¡ÒôÆµ²İ¸åÂ·¾¶
-    QString getExportVideoPath(const QString& projectId) const; // »ñÈ¡Ä¬ÈÏµ¼³öÊÓÆµÂ·¾¶
-    QString getCacheThumbnailBasePath() const; // »ñÈ¡ËõÂÔÍ¼»º´æ»ùÂ·¾¶
-    QString getAppCacheBasePath() const; // »ñÈ¡Ó¦ÓÃ»º´æ»ùÂ·¾¶
-    QString getTempBasePath() const; // »ñÈ¡È«¾ÖÁÙÊ±ÎÄ¼ş»ùÂ·¾¶
-    QString getProjectStagingBasePath(const QString& projectId) const; // »ñÈ¡ÏîÄ¿staging»ùÂ·¾¶
-    QString getProjectExportBasePath(const QString& projectId) const; // »ñÈ¡ÏîÄ¿export»ùÂ·¾¶
-    QUrl toFileUrl(const QString& localPath) const; // ½«±¾µØ¾ø¶ÔÂ·¾¶×Ö·û´®×ªÎª file://
 
-    // »Ö¸´²ßÂÔÄÚ²¿ÊµÏÖ
+    bool ensureDir(const QString& dirPath) const; // ç¡®ä¿ç›®å½•å­˜åœ¨ï¼Œå¦åˆ™åˆ›å»ºï¼Œä½¿ç”¨ QDir/QFileInfo
+    //QString getUserBasePath() const; // è·å–ç”¨æˆ·ç›®å½•åŸºç¡€è·¯å¾„
+    QString hashString(const QString& input) const; // å“ˆå¸Œå·¥å…·å‡½æ•° (SHA256)
+    QString getCacheBasePath() const; // è·å–ç¼“å­˜åŸºè·¯å¾„
+    QString getCacheThumbnailPath(const QString& id) const; // ä¿®æ”¹ï¼šæ”¯æŒå“ˆå¸Œå‰ç¼€å­ç›®å½•
+    QString getCacheThumbnailFilePath(const QString& id) const;
+    QString getAppCachePath() const;
+    QString getAppCacheModelsPath() const; // æ–°å¢ï¼šåº”ç”¨æ¨¡å‹ç¼“å­˜è·¯å¾„
+    QString getAppCacheResourcesPath() const; // æ–°å¢ï¼šåº”ç”¨èµ„æºç¼“å­˜è·¯å¾„
+
+    QString getProjectRootPath(const QString& projectId) const; // è·å–é¡¹ç›®æ ¹ç›®å½•è·¯å¾„ï¼ˆæœ¬åœ°ç»å¯¹è·¯å¾„ï¼Œä»…ç”¨äºå†…éƒ¨è®¡ç®—ï¼‰
+    QString getShotRootPath(const QString& projectId, const QString& shotId) const; // è·å–åˆ†é•œæ ¹ç›®å½•è·¯å¾„
+    QString getShotImagePath(const QString& projectId, const QString& shotId) const; // è·å–å›¾åƒæ–‡ä»¶è·¯å¾„ï¼ˆæœ¬åœ°ç»å¯¹è·¯å¾„ï¼‰
+    QString getShotAudioPath(const QString& projectId, const QString& shotId) const; // è·å–éŸ³é¢‘æ–‡ä»¶è·¯å¾„
+    QString getShotHealthSnapshotPath(const QString& projectId, const QString& shotId) const; // è·å–åˆ†é•œå¿«ç…§è·¯å¾„
+    QString getProjectHealthSnapshotPath(const QString& projectId) const; // è·å–é¡¹ç›®å¿«ç…§è·¯å¾„
+    QString getProjectThumbnailPath(const QString& projectId) const; // è·å–é¡¹ç›®ç¼©ç•¥å›¾è·¯å¾„
+    QString getStagingImagePath(const QString& projectId, const QString& shotId) const; // è·å–å›¾åƒè‰ç¨¿è·¯å¾„
+    QString getStagingAudioPath(const QString& projectId, const QString& shotId) const; // è·å–éŸ³é¢‘è‰ç¨¿è·¯å¾„
+    QString getExportVideoPath(const QString& projectId) const; // è·å–é»˜è®¤å¯¼å‡ºè§†é¢‘è·¯å¾„
+    QString getCacheThumbnailBasePath() const; // è·å–ç¼©ç•¥å›¾ç¼“å­˜åŸºè·¯å¾„
+    QString getAppCacheBasePath() const; // è·å–åº”ç”¨ç¼“å­˜åŸºè·¯å¾„
+    QString getTempBasePath() const; // è·å–å…¨å±€ä¸´æ—¶æ–‡ä»¶åŸºè·¯å¾„
+    QString getProjectStagingBasePath(const QString& projectId) const; // è·å–é¡¹ç›®stagingåŸºè·¯å¾„
+    QString getProjectExportBasePath(const QString& projectId) const; // è·å–é¡¹ç›®exportåŸºè·¯å¾„
+    QUrl toFileUrl(const QString& localPath) const; // å°†æœ¬åœ°ç»å¯¹è·¯å¾„å­—ç¬¦ä¸²è½¬ä¸º file://
+
+    // æ¢å¤ç­–ç•¥å†…éƒ¨å®ç°
     bool rebuildMetadataJson(const QString& projectId);
     QString findDraftForMissingFile(const QString& projectId, const QString& missingFileType, const QString& shotId = "");
-    QVariantMap findOrphanedFiles(const QString& projectId); // ²éÕÒ¹Â¶ùÎÄ¼ş
-    bool cleanupOrphanedFiles(const QString& projectId); // ÇåÀí¹Â¶ùÎÄ¼ş
+    QVariantMap findOrphanedFiles(const QString& projectId); // æŸ¥æ‰¾å­¤å„¿æ–‡ä»¶
+    bool cleanupOrphanedFiles(const QString& projectId); // æ¸…ç†å­¤å„¿æ–‡ä»¶
     QVariantList getMissingFilesList(const QJsonObject& manifest);
     QString calculateChecksum(const QString& filePath);
 
-    // Òì²½²Ù×÷¿ØÖÆ
+    // å¼‚æ­¥æ“ä½œæ§åˆ¶
     bool canCancelCurrentOperation(const QString& projectId);
     void performCancelOperation(const QString& projectId);
 
-    // ÒÆ¶¯ÎÄ¼şµÄÍ¨ÓÃº¯Êı
+    // ç§»åŠ¨æ–‡ä»¶çš„é€šç”¨å‡½æ•°
     bool moveFile(const QString& sourcePath, const QString& destinationPath);
 };
 
-#endif // FILEMANAGER_H#pragma once
+#endif // FILEMANAGER_H

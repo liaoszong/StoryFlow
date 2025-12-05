@@ -1,4 +1,4 @@
-# This file is used to ignore files which are generated
+﻿# This file is used to ignore files which are generated
 # ----------------------------------------------------------------------------
 
 *~
@@ -50,6 +50,12 @@ CMakeLists.txt.user*
 .vs/
 out/
 build/
+/.vs/
+*.VC.db
+*.VC.VC.opendb
+/build/
+/out/
+
 
 # Visual Studio generated files
 *.ib_pdb_index
