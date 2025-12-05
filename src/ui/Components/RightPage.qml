@@ -114,11 +114,36 @@ Rectangle {
                 color: "#94A3B8"
                 anchors.horizontalCenter: parent.horizontalCenter
             }
-        }
 
-        // 拦截点击事件
-        MouseArea {
-            anchors.fill: parent
+            // 取消按钮
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "取消"
+                font.pixelSize: 13
+                padding: 8
+                leftPadding: 24
+                rightPadding: 24
+
+                background: Rectangle {
+                    color: parent.hovered ? "#FEE2E2" : "#FEF2F2"
+                    radius: 6
+                    border.color: "#FECACA"
+                    border.width: 1
+                }
+
+                contentItem: Text {
+                    text: parent.text
+                    font: parent.font
+                    color: "#DC2626"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                onClicked: {
+                    console.log("Cancel button clicked")
+                    storyViewModel.cancelGeneration()
+                }
+            }
         }
     }
 
@@ -177,6 +202,12 @@ Rectangle {
 
         // 故事生成完成
         function onStoryCreated(projectData) {
+            console.log("========== RightPage.onStoryCreated ==========")
+            console.log("收到 projectData:", JSON.stringify(projectData))
+            console.log("storyboards 数量:", projectData.storyboards ? projectData.storyboards.length : 0)
+            if (projectData.storyboards && projectData.storyboards.length > 0) { console.log("第一个分镜:", JSON.stringify(projectData.storyboards[0])) }
+            console.log("==============================================")
+
             home_right.currentProjectData = projectData
             assetsViewModel.loadAssets()
             home_right.navigateTo("storyboard")

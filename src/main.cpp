@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
     // 3. 创建 ViewModel
     StoryViewModel storyViewModel(&apiService, &fileManager);
-    AssetsViewModel assetsViewModel(&apiService);
+    AssetsViewModel assetsViewModel(&fileManager);
 
     // 4. 创建视频生成器
     VideoGenerator videoGenerator;

@@ -184,7 +184,7 @@ Rectangle {
             MediaPlayer {
                 id: videoPlayer
                 videoOutput: videoOutput
-                audioOutput: AudioOutput {}
+                audioOutput: AudioOutput { id: audioOutput; volume: 1.0 }
 
                 onErrorOccurred: function(error, errorString) {
                     console.error("Video error:", error, errorString)
@@ -380,6 +380,55 @@ Rectangle {
                         text: formatTime(videoPlayer.position) + " / " + formatTime(videoPlayer.duration)
                         color: "white"
                         font.pixelSize: 12
+                    }
+
+                    // 分隔线
+                    Rectangle { width: 1; height: 20; color: Qt.rgba(1,1,1,0.3) }
+
+                    // 音量图标
+                    Text {
+                        text: audioOutput.volume === 0 ? "🔇" : (audioOutput.volume < 0.5 ? "🔉" : "🔊")
+                        color: "white"
+                        font.pixelSize: 16
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: audioOutput.volume = audioOutput.volume === 0 ? 1.0 : 0
+                        }
+                    }
+
+                    // 音量滑块
+                    Slider {
+                        id: volumeSlider
+                        implicitWidth: 80
+                        from: 0
+                        to: 1.0
+                        value: audioOutput.volume
+                        onMoved: audioOutput.volume = value
+
+                        background: Rectangle {
+                            x: volumeSlider.leftPadding
+                            y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
+                            width: volumeSlider.availableWidth
+                            height: 4
+                            radius: 2
+                            color: Qt.rgba(1, 1, 1, 0.3)
+                            Rectangle {
+                                width: volumeSlider.visualPosition * parent.width
+                                height: parent.height
+                                radius: 2
+                                color: "#10B981"
+                            }
+                        }
+
+                        handle: Rectangle {
+                            x: volumeSlider.leftPadding + volumeSlider.visualPosition * (volumeSlider.availableWidth - width)
+                            y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
+                            width: 12
+                            height: 12
+                            radius: 6
+                            color: volumeSlider.pressed ? "#059669" : "#10B981"
+                        }
                     }
                 }
             }

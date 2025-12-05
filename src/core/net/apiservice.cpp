@@ -46,8 +46,8 @@ void ApiService::post(const QString &endpoint, const QJsonObject &payload, ApiRe
     QJsonDocument doc(payload);
     QByteArray data = doc.toJson(QJsonDocument::Compact);
 
-    // 设置请求超时时间 (30秒)
-    request.setTransferTimeout(30000);
+    // 设置请求超时时间 (120秒)
+    request.setTransferTimeout(120000);
 
     QNetworkReply *reply = manager->post(request, data);
 

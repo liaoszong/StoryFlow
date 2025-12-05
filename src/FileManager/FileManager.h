@@ -198,6 +198,24 @@ public:
     void cleanupTempFiles();
 
 
+
+    // ==========================================
+    // Local Project Management (NEW)
+    // ==========================================
+
+    // Save project data as JSON file
+    Q_INVOKABLE bool saveProjectToLocal(const QString& savePath, const QVariantMap& projectData);
+
+    // Load project data from JSON file
+    Q_INVOKABLE QVariantMap loadProjectFromLocal(const QString& projectJsonPath);
+
+    // Scan directory for local projects
+    Q_INVOKABLE QVariantList scanLocalProjects(const QString& directoryPath);
+
+    // Delete local project folder
+    Q_INVOKABLE bool deleteLocalProject(const QString& projectPath);
+
+
 signals:
 
     // 通用操作结果

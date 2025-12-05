@@ -22,10 +22,10 @@ public:
     explicit StoryViewModel(ApiService *apiService, FileManager *fileManager, QObject *parent = nullptr);
 
     Q_INVOKABLE void createStory(const QString &prompt, const QString &style, const QString &savePath);
+    Q_INVOKABLE void cancelGeneration();
     Q_INVOKABLE void regenerateImage(const QString &projectId, const QString &shotId, const QString &newPrompt, const QString &style);
     Q_INVOKABLE void generateVideo(const QString &projectId);
 
-    // 导出相关
     Q_INVOKABLE QJsonObject buildRenderConfig(const QVariantMap &projectData);
     Q_INVOKABLE void exportVideo(const QString &projectId);
 
@@ -45,41 +45,49 @@ signals:
     void errorOccurred(QString message);
     void imageRegenerated(QVariantMap shotData);
     void videoGenerated(QVariantMap videoData);
-    void imageDownloadProgress(int current, int total);  // 图片下载进度
-    void allImagesDownloaded(QVariantMap projectData);   // 所有图片下载完成
+    void imageDownloadProgress(int current, int total);
+    void allImagesDownloaded(QVariantMap projectData);
 
 private slots:
-    void checkTaskStatus(); // 故事生成的主轮询
-    // 【新增】单张图片生成的轮询槽函数
+    void checkTaskStatus();
+    void checkMediaGenerationStatus();
     void checkSingleImageStatus(const QString &taskId, const QString &shotId);
 
 private:
     ApiService *m_apiService;
     FileManager *m_fileManager;
     QTimer *m_pollTimer;
+    QTimer *m_mediaPollTimer;
     QString m_currentTaskId;
     QString m_currentProjectId;
-    QString m_savePath;  // 用户选择的保存路径
+    QString m_currentUserId;
+    QString m_currentStyle;
+    QString m_savePath;
 
     bool m_isGenerating;
     int m_progress;
     QString m_statusMessage;
 
-    // 图片下载相关
-    QVariantMap m_pendingProjectData;  // 待处理的项目数据
-    int m_totalImages;                  // 总图片数
-    int m_downloadedImages;             // 已下载图片数
+    QVariantMap m_pendingProjectData;
+    int m_totalImages;
+    int m_downloadedImages;
+    int m_totalAudios;
+    int m_downloadedAudios;
 
     void setIsGenerating(bool status);
     void setProgress(int value);
     void setStatusMessage(const QString &message);
 
-    // 图片下载保存
-    void processStoryboardImages(const QVariantMap &projectData);
+    void requestGenerateImages();
+    void requestGenerateAudios();
+    void downloadAllMedia();
     void downloadAndSaveImage(const QString &shotId, const QString &imageUrl, int index);
+    void downloadAndSaveAudio(const QString &shotId, const QString &audioUrl, int index);
+    void checkDownloadComplete();
+    void finishGeneration();
     void downloadRegeneratedImage(const QString &shotId, const QString &imageUrl);
 
-    // 获取分镜列表 (新 API)
+    void processStoryboardImages(const QVariantMap &projectData);
     void fetchShotsList();
 };
 

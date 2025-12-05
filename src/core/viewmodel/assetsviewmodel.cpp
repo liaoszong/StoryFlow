@@ -1,22 +1,14 @@
 #include "AssetsViewModel.h"
+#include "FileManager/FileManager.h"
 #include <QDebug>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QRandomGenerator>
+#include <QUrl>
 
-// API 端点常量
-namespace AssetsApi {
-    const QString ENDPOINT_PROJECT_LIST = "/api/client/project/list";
-    const QString ENDPOINT_PROJECT_DELETE = "/api/client/project/delete";
-}
-
-AssetsViewModel::AssetsViewModel(ApiService *apiService, QObject *parent)
-    : QObject(parent), m_apiService(apiService), m_isLoading(false)
+AssetsViewModel::AssetsViewModel(FileManager *fileManager, QObject *parent)
+    : QObject(parent), m_fileManager(fileManager), m_isLoading(false)
 {
     m_fullList = QVariantList();
     m_projectList = QVariantList();
-    // 生成一个临时的 user_id (实际应该从登录状态获取)
-    m_userId = "user_" + QString::number(QRandomGenerator::global()->generate());
+    m_scanPath = QString();
 }
 
 void AssetsViewModel::setIsLoading(bool status) {
@@ -30,78 +22,116 @@ void AssetsViewModel::setProjectList(const QVariantList &list) {
     emit projectListChanged();
 }
 
-void AssetsViewModel::deleteProject(const QString &projectId)
-{
-    QJsonObject payload;
-    payload["project_id"] = projectId;
-    payload["user_id"] = m_userId;
-
-    m_apiService->post(AssetsApi::ENDPOINT_PROJECT_DELETE, payload,
-                       [this](bool success, const QJsonObject &resp) {
-                           if (!success) {
-                               emit errorOccurred("网络错误，删除失败");
-                               return;
-                           }
-
-                           // 检查业务返回 code == 0 表示成功
-                           if (resp["code"].toInt() == 0) {
-                               // 删除成功后，重新拉取列表
-                               loadAssets();
-                           } else {
-                               QString msg = resp["msg"].toString();
-                               emit errorOccurred(msg.isEmpty() ? "删除失败" : msg);
-                           }
-                       });
+void AssetsViewModel::setScanPath(const QString &path) {
+    QString localPath = path;
+    // 处理 file:// URL
+    if (localPath.startsWith("file:///")) {
+        localPath = QUrl(localPath).toLocalFile();
+    }
+    
+    if (m_scanPath == localPath) return;
+    m_scanPath = localPath;
+    emit scanPathChanged();
+    
+    qDebug() << "AssetsViewModel: scanPath changed to:" << m_scanPath;
 }
 
 void AssetsViewModel::loadAssets()
 {
+    if (m_scanPath.isEmpty()) {
+        qDebug() << "AssetsViewModel: scanPath is empty, cannot load assets";
+        return;
+    }
+    
+    scanProjects(m_scanPath);
+}
+
+void AssetsViewModel::scanProjects(const QString &directoryPath)
+{
     if (m_isLoading) return;
+    
+    QString localPath = directoryPath;
+    // 处理 file:// URL
+    if (localPath.startsWith("file:///")) {
+        localPath = QUrl(localPath).toLocalFile();
+    }
+    
+    if (localPath.isEmpty()) {
+        emit errorOccurred("请选择有效的文件夹路径");
+        return;
+    }
+    
     setIsLoading(true);
+    
+    // 更新扫描路径
+    if (m_scanPath != localPath) {
+        m_scanPath = localPath;
+        emit scanPathChanged();
+    }
+    
+    qDebug() << "AssetsViewModel: Scanning projects in:" << localPath;
+    
+    // 使用 FileManager 扫描本地项目
+    QVariantList projects = m_fileManager->scanLocalProjects(localPath);
+    
+    // 按更新时间排序（最新的在前）
+    std::sort(projects.begin(), projects.end(), [](const QVariant &a, const QVariant &b) {
+        QVariantMap mapA = a.toMap();
+        QVariantMap mapB = b.toMap();
+        QString timeA = mapA["updated_at"].toString();
+        QString timeB = mapB["updated_at"].toString();
+        return timeA > timeB;  // 降序
+    });
+    
+    // 更新数据
+    m_fullList = projects;
+    setProjectList(projects);
+    
+    setIsLoading(false);
+    
+    qDebug() << "AssetsViewModel: Found" << projects.size() << "projects";
+}
 
-    // 构建查询参数
-    QJsonObject params;
-    params["user_id"] = m_userId;
+void AssetsViewModel::deleteProject(const QString &projectPath)
+{
+    QString localPath = projectPath;
+    // 处理 file:// URL
+    if (localPath.startsWith("file:///")) {
+        localPath = QUrl(localPath).toLocalFile();
+    }
+    
+    if (localPath.isEmpty()) {
+        emit errorOccurred("无效的项目路径");
+        return;
+    }
+    
+    qDebug() << "AssetsViewModel: Deleting project at:" << localPath;
+    
+    bool success = m_fileManager->deleteLocalProject(localPath);
+    
+    if (success) {
+        emit projectDeleted(localPath);
+        // 重新加载列表
+        loadAssets();
+    } else {
+        emit errorOccurred("删除项目失败");
+    }
+}
 
-    m_apiService->get(AssetsApi::ENDPOINT_PROJECT_LIST, params,
-                      [this](bool success, const QJsonObject &resp) {
-                          setIsLoading(false);
-
-                          if (!success) {
-                              emit errorOccurred("加载资产列表失败");
-                              return;
-                          }
-
-                          // 检查业务返回 code == 0 表示成功
-                          if (resp["code"].toInt() != 0) {
-                              QString msg = resp["msg"].toString();
-                              emit errorOccurred(msg.isEmpty() ? "加载失败" : msg);
-                              return;
-                          }
-
-                          QJsonArray arr;
-                          QJsonObject data = resp["data"].toObject();
-
-                          // 从 data.projects 或 data 直接获取项目列表
-                          if (data.contains("projects") && data["projects"].isArray()) {
-                              arr = data["projects"].toArray();
-                          } else if (resp["data"].isArray()) {
-                              arr = resp["data"].toArray();
-                          }
-
-                          QVariantList newList;
-                          for (auto it = arr.constBegin(); it != arr.constEnd(); ++it) {
-                              if (it->isObject()) {
-                                  newList.append(it->toObject().toVariantMap());
-                              }
-                          }
-
-                          // 同时更新"仓库"和"视图"
-                          m_fullList = newList;
-                          setProjectList(newList);
-
-                          qDebug() << "Assets loaded:" << newList.size();
-                      });
+QVariantMap AssetsViewModel::loadProjectDetail(const QString &projectJsonPath)
+{
+    QString localPath = projectJsonPath;
+    // 处理 file:// URL
+    if (localPath.startsWith("file:///")) {
+        localPath = QUrl(localPath).toLocalFile();
+    }
+    
+    if (localPath.isEmpty()) {
+        qWarning() << "AssetsViewModel: Invalid project JSON path";
+        return QVariantMap();
+    }
+    
+    return m_fileManager->loadProjectFromLocal(localPath);
 }
 
 // 前端本地过滤，零延迟
@@ -130,10 +160,5 @@ void AssetsViewModel::filterAssets(const QString &keyword)
 
     // 3. 更新 UI
     setProjectList(filteredList);
-    qDebug() << "Local filter:" << query << "Found:" << filteredList.size();
-}
-
-void AssetsViewModel::setUserId(const QString &userId)
-{
-    m_userId = userId;
+    qDebug() << "AssetsViewModel: Local filter:" << query << "Found:" << filteredList.size();
 }

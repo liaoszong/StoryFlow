@@ -1146,3 +1146,189 @@ bool FileManager::canCancelCurrentOperation(const QString& /*projectId*/) {
 void FileManager::performCancelOperation(const QString& /*projectId*/) {
     // Placeholder - depends on async op management
 }
+// ==========================================
+// Local Project Management Implementation
+// ==========================================
+
+bool FileManager::saveProjectToLocal(const QString& savePath, const QVariantMap& projectData)
+{
+    if (savePath.isEmpty() || projectData.isEmpty()) {
+        qWarning() << "saveProjectToLocal: Invalid parameters";
+        return false;
+    }
+
+    // Get project ID from data
+    QString projectId = projectData["project_id"].toString();
+    if (projectId.isEmpty()) {
+        projectId = projectData["id"].toString();
+    }
+    if (projectId.isEmpty()) {
+        projectId = "proj_" + QString::number(QDateTime::currentMSecsSinceEpoch());
+    }
+
+    // Create project directory: savePath/projectId/
+    QString projectDir = QDir(savePath).filePath(projectId);
+    QDir dir;
+    if (!dir.mkpath(projectDir)) {
+        qWarning() << "saveProjectToLocal: Failed to create directory:" << projectDir;
+        return false;
+    }
+
+    // Build project JSON
+    QJsonObject projectJson;
+    projectJson["project_id"] = projectId;
+    projectJson["name"] = projectData["name"].toString();
+    projectJson["style"] = projectData["style"].toString();
+    projectJson["created_at"] = projectData["created_at"].toString();
+    if (projectJson["created_at"].toString().isEmpty()) {
+        projectJson["created_at"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+    }
+    projectJson["updated_at"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+
+    // Convert storyboards
+    QVariantList storyboards = projectData["storyboards"].toList();
+    QJsonArray storyboardsArray;
+    for (const QVariant& sb : storyboards) {
+        QVariantMap shot = sb.toMap();
+        QJsonObject shotJson;
+        shotJson["shotId"] = shot["shotId"].toString();
+        shotJson["sceneTitle"] = shot["sceneTitle"].toString();
+        shotJson["prompt"] = shot["prompt"].toString();
+        shotJson["narration"] = shot["narration"].toString();
+        shotJson["localImagePath"] = shot["localImagePath"].toString();
+        shotJson["audioPath"] = shot["audioPath"].toString();
+        shotJson["status"] = shot["status"].toString();
+        shotJson["transition"] = shot["transition"].toString();
+        shotJson["effect"] = shot["effect"].toString();
+        storyboardsArray.append(shotJson);
+    }
+    projectJson["storyboards"] = storyboardsArray;
+
+    // Get first image as thumbnail
+    if (!storyboards.isEmpty()) {
+        QVariantMap firstShot = storyboards[0].toMap();
+        projectJson["thumbnail"] = firstShot["localImagePath"].toString();
+    }
+
+    // Write to project.json
+    QString jsonPath = QDir(projectDir).filePath("project.json");
+    QFile file(jsonPath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "saveProjectToLocal: Failed to open file for writing:" << jsonPath;
+        return false;
+    }
+
+    QJsonDocument doc(projectJson);
+    file.write(doc.toJson(QJsonDocument::Indented));
+    file.close();
+
+    qDebug() << "Project saved to:" << jsonPath;
+    return true;
+}
+
+QVariantMap FileManager::loadProjectFromLocal(const QString& projectJsonPath)
+{
+    QFile file(projectJsonPath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "loadProjectFromLocal: Failed to open file:" << projectJsonPath;
+        return QVariantMap();
+    }
+
+    QByteArray data = file.readAll();
+    file.close();
+
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &error);
+    if (error.error != QJsonParseError::NoError) {
+        qWarning() << "loadProjectFromLocal: JSON parse error:" << error.errorString();
+        return QVariantMap();
+    }
+
+    QVariantMap result = doc.object().toVariantMap();
+    // Add the file path for reference
+    result["_projectPath"] = QFileInfo(projectJsonPath).absolutePath();
+    
+    qDebug() << "Project loaded from:" << projectJsonPath;
+    return result;
+}
+
+QVariantList FileManager::scanLocalProjects(const QString& directoryPath)
+{
+    QVariantList projects;
+
+    if (directoryPath.isEmpty()) {
+        qWarning() << "scanLocalProjects: Empty directory path";
+        return projects;
+    }
+
+    QDir baseDir(directoryPath);
+    if (!baseDir.exists()) {
+        qWarning() << "scanLocalProjects: Directory does not exist:" << directoryPath;
+        return projects;
+    }
+
+    qDebug() << "Scanning for projects in:" << directoryPath;
+
+    // Iterate through subdirectories
+    QStringList subdirs = baseDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const QString& subdir : subdirs) {
+        QString projectJsonPath = baseDir.filePath(subdir + "/project.json");
+        
+        if (QFile::exists(projectJsonPath)) {
+            QVariantMap projectData = loadProjectFromLocal(projectJsonPath);
+            
+            if (!projectData.isEmpty()) {
+                QVariantMap projectInfo;
+                projectInfo["project_id"] = projectData["project_id"];
+                projectInfo["name"] = projectData["name"].toString();
+                projectInfo["thumbnail"] = projectData["thumbnail"].toString();
+                projectInfo["created_at"] = projectData["created_at"].toString();
+                projectInfo["updated_at"] = projectData["updated_at"].toString();
+                projectInfo["path"] = baseDir.filePath(subdir);
+                projectInfo["jsonPath"] = projectJsonPath;
+                
+                // Get storyboards count
+                QVariantList storyboards = projectData["storyboards"].toList();
+                projectInfo["shotsCount"] = storyboards.size();
+                
+                // Use first image as cover if thumbnail is empty
+                if (projectInfo["thumbnail"].toString().isEmpty() && !storyboards.isEmpty()) {
+                    QVariantMap firstShot = storyboards[0].toMap();
+                    projectInfo["thumbnail"] = firstShot["localImagePath"].toString();
+                }
+                
+                // Full project data for loading later
+                projectInfo["fullData"] = projectData;
+                
+                projects.append(projectInfo);
+                qDebug() << "Found project:" << projectInfo["name"].toString();
+            }
+        }
+    }
+
+    qDebug() << "Total projects found:" << projects.size();
+    return projects;
+}
+
+bool FileManager::deleteLocalProject(const QString& projectPath)
+{
+    if (projectPath.isEmpty()) {
+        qWarning() << "deleteLocalProject: Empty path";
+        return false;
+    }
+
+    QDir dir(projectPath);
+    if (!dir.exists()) {
+        qWarning() << "deleteLocalProject: Directory does not exist:" << projectPath;
+        return false;
+    }
+
+    bool success = dir.removeRecursively();
+    if (success) {
+        qDebug() << "Project deleted:" << projectPath;
+    } else {
+        qWarning() << "deleteLocalProject: Failed to delete:" << projectPath;
+    }
+    
+    return success;
+}
