@@ -10,7 +10,7 @@ import QtMultimedia
  */
 Rectangle {
     id: previewPage
-    color: "#0F172A"
+    color: "#F8FAFC"
     bottomRightRadius: 16
 
     // ==================== 属性定义 ====================
@@ -46,15 +46,32 @@ Rectangle {
             return
         }
 
+        // 辅助函数：将 file:// URI 转换为本地路径
+        function toLocalPath(path) {
+            if (!path) return ""
+            // 处理 file:// URI
+            if (path.startsWith("file:///")) {
+                return path.replace("file:///", "")
+            }
+            if (path.startsWith("file://")) {
+                return path.replace("file://", "")
+            }
+            return path
+        }
+
         // 构建 shots 数据 (VideoGenerator 需要的格式)
         var shots = []
         for (var i = 0; i < storyboards.length; i++) {
             var shot = storyboards[i]
+            var imagePath = toLocalPath(shot.localImagePath || shot.imagePath || "")
+
+            console.log("Shot", i, "imagePath:", imagePath)
+
             shots.push({
-                // 图片路径 - 使用 localFilePath (原始路径供 FFmpeg 使用)
-                "imagePath": shot.localFilePath || shot.localImagePath.replace("file:///", ""),
+                // 图片路径 - 转换为本地路径供 FFmpeg 使用
+                "imagePath": imagePath,
                 // 音频路径
-                "audioPath": shot.localAudioPath || "",
+                "audioPath": toLocalPath(shot.localAudioPath || shot.audioPath || ""),
                 // 持续时间
                 "duration": shot.duration || 3.0,
                 // 转场类型
@@ -62,22 +79,22 @@ Rectangle {
                 // 转场时长
                 "transitionDuration": shot.transitionDuration || 0.5,
                 // Ken Burns 特效
-                "kenBurnsEnabled": shot.kenBurnsEnabled || false,
-                "kenBurnsPreset": shot.kenBurnsPreset || "zoom_in",
+                "kenBurnsEnabled": true,
+                "kenBurnsPreset": shot.transition || "zoom_in",
                 // 字幕（旁白文字）
                 "subtitle": shot.narration || ""
             })
         }
 
-        // 生成输出路径
+        // 生成输出路径 - 使用用户选择的保存路径或默认临时目录
         var timestamp = Date.now()
         var projectName = currentProjectData.name || "video"
-        // 使用临时目录
-        videoOutputPath = "C:/temp/storyflow_" + timestamp + ".mp4"
+        var basePath = storyViewModel.savePath ? toLocalPath(storyViewModel.savePath) : "C:/temp"
+        videoOutputPath = basePath + "/storyflow_" + timestamp + ".mp4"
 
         console.log("Starting video generation...")
         console.log("Output path:", videoOutputPath)
-        console.log("Shots:", JSON.stringify(shots))
+        console.log("Shots count:", shots.length)
 
         // 调用 VideoGenerator
         videoGenerator.generateVideo(shots, videoOutputPath, 1920, 1080, 30)
@@ -279,6 +296,9 @@ Rectangle {
                 anchors.bottom: parent.bottom
                 height: 60
                 visible: previewPage.videoReady
+                // 只设置底部圆角
+                bottomLeftRadius: 16
+                bottomRightRadius: 16
 
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: "transparent" }
@@ -449,7 +469,7 @@ Rectangle {
         // 导出成功提示
         Text {
             id: exportSuccessText
-            text: "✓ 视频已保存到: " + previewPage.videoOutputPath
+            text: "✓ 视频已导出到磁盘: " + previewPage.videoOutputPath
             color: "#22C55E"
             font.pixelSize: 13
             Layout.alignment: Qt.AlignHCenter

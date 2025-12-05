@@ -24,6 +24,9 @@ public:
     void post(const QString &endpoint, const QJsonObject &payload, ApiResponseCallback callback);
     void get(const QString &endpoint, const QJsonObject &params, ApiResponseCallback callback);
 
+    // 获取网络管理器（用于图片下载等）
+    QNetworkAccessManager* getManager() const { return manager; }
+
 private:
     QNetworkAccessManager *manager;
     QString jwtToken;

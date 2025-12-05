@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 
 /**
  * 创建页面 - Create
@@ -15,9 +16,19 @@ Rectangle {
     property string selectedStyle: "animation"  // 当前选中的风格
     property string storyText: ""               // 故事文本内容
     property var currentProjectData: null       // 当前项目数据
+    property string savePath: ""                // 项目保存路径
 
     // ==================== 信号定义 ====================
     signal styleSelected(string style)
+
+    // ==================== 文件夹选择对话框 ====================
+    FolderDialog {
+        id: folderDialog
+        title: "选择项目保存位置"
+        onAccepted: {
+            createPage.savePath = selectedFolder.toString()
+        }
+    }
 
     // ==================== 主布局 ====================
     ScrollView {
@@ -215,6 +226,92 @@ Rectangle {
                     }
                 }
 
+                // ==================== 保存路径选择卡片 ====================
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 100
+                    radius: 12
+                    color: "#FFFFFF"
+                    border.width: 1
+                    border.color: "#E2E8F0"
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 20
+                        spacing: 12
+
+                        // 标签栏
+                        Row {
+                            spacing: 8
+
+                            Rectangle {
+                                width: 4
+                                height: 18
+                                radius: 2
+                                color: "#6366F1"
+                            }
+
+                            Text {
+                                text: "保存位置"
+                                font.pixelSize: 15
+                                font.weight: Font.DemiBold
+                                color: "#1E293B"
+                            }
+                        }
+
+                        // 路径选择行
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12
+
+                            // 路径显示框
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 40
+                                radius: 8
+                                color: "#F8FAFC"
+                                border.width: 1
+                                border.color: "#E2E8F0"
+
+                                Text {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 12
+                                    anchors.rightMargin: 12
+                                    verticalAlignment: Text.AlignVCenter
+                                    text: createPage.savePath ? createPage.savePath.replace("file:///", "") : "请选择项目保存位置..."
+                                    font.pixelSize: 13
+                                    color: createPage.savePath ? "#334155" : "#94A3B8"
+                                    elide: Text.ElideMiddle
+                                }
+                            }
+
+                            // 浏览按钮
+                            Button {
+                                Layout.preferredWidth: 80
+                                Layout.preferredHeight: 40
+
+                                background: Rectangle {
+                                    radius: 8
+                                    color: parent.down ? "#E0E7FF" : (parent.hovered ? "#EEF2FF" : "#F1F5F9")
+                                    border.width: 1
+                                    border.color: parent.hovered ? "#6366F1" : "#E2E8F0"
+                                }
+
+                                contentItem: Text {
+                                    text: "浏览..."
+                                    font.pixelSize: 13
+                                    font.weight: Font.Medium
+                                    color: "#4F46E5"
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                onClicked: folderDialog.open()
+                            }
+                        }
+                    }
+                }
+
                 // ==================== 生成按钮 ====================
                 Button {
                     id: generateBtn
@@ -223,8 +320,8 @@ Rectangle {
                     Layout.preferredHeight: 48
                     Layout.topMargin: 8
 
-                    // 状态绑定
-                    enabled: createPage.storyText.length > 0 && !storyViewModel.isGenerating
+                    // 状态绑定：必须有故事内容且选择了保存路径
+                    enabled: createPage.storyText.length > 0 && createPage.savePath.length > 0 && !storyViewModel.isGenerating
 
                     // 强制开启悬停，确保颜色变化生效
                     hoverEnabled: true
@@ -265,7 +362,7 @@ Rectangle {
                     }
 
                     onClicked: {
-                        storyViewModel.createStory(createPage.storyText, createPage.selectedStyle)
+                        storyViewModel.createStory(createPage.storyText, createPage.selectedStyle, createPage.savePath)
                     }
                 }
             }

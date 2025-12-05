@@ -17,9 +17,11 @@ public:
     Q_INVOKABLE void loadAssets();
     Q_INVOKABLE void filterAssets(const QString &keyword);
     Q_INVOKABLE void deleteProject(const QString &projectId);
+    Q_INVOKABLE void setUserId(const QString &userId);
 
     bool isLoading() const { return m_isLoading; }
     QVariantList projectList() const { return m_projectList; }
+    QString userId() const { return m_userId; }
 
 signals:
     void isLoadingChanged();
@@ -29,8 +31,9 @@ signals:
 private:
     ApiService *m_apiService;
     bool m_isLoading;
+    QString m_userId;  // 用户 ID
 
-    // *数据源分离
+    // 数据源分离
     QVariantList m_fullList;     // 数据仓库：保存从服务器拉回来的所有数据
     QVariantList m_projectList;  // 视图数据：UI 真正显示的数据（可能是过滤过的）
 

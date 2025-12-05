@@ -4,7 +4,8 @@
 #include <QUrlQuery>
 
 // 定义远程服务器地址
-static const QString BASE_URL = "http://127.0.0.1:5000";
+static const QString BASE_URL = "http://39.105.112.239:8080";
+// static const QString BASE_URL = "http://127.0.0.1:5000";  // 本地测试服务器
 
 ApiService::ApiService(QObject *parent)
     : QObject(parent)
@@ -44,6 +45,9 @@ void ApiService::post(const QString &endpoint, const QJsonObject &payload, ApiRe
 
     QJsonDocument doc(payload);
     QByteArray data = doc.toJson(QJsonDocument::Compact);
+
+    // 设置请求超时时间 (30秒)
+    request.setTransferTimeout(30000);
 
     QNetworkReply *reply = manager->post(request, data);
 
@@ -97,6 +101,9 @@ void ApiService::get(const QString &endpoint, const QJsonObject &params, ApiResp
 
     // 添加认证头
     addAuthorizationHeader(request);
+
+    // 设置请求超时时间 (30秒)
+    request.setTransferTimeout(30000);
 
     QNetworkReply *reply = manager->get(request);
 

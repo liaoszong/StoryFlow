@@ -15,9 +15,11 @@ Rectangle {
     property var shotData: null         // 分镜数据
     property string projectId: ""       // 项目 ID
     property string selec_style: ""     // 选中的风格
+    property int imageRefreshKey: 0     // 用于强制刷新图片
 
     // ==================== 信号定义 ====================
     signal navigateTo(string page)
+    signal shotDataUpdated(var updatedShot)  // 通知父组件数据已更新
 
     // 转场效果选项
     readonly property var kTransitions: [
@@ -87,6 +89,8 @@ Rectangle {
 
             onClicked: {
                 saveCurrentEdits()
+                // 通知父组件数据已更新
+                shotDetailPage.shotDataUpdated(shotData)
                 shotDetailPage.navigateTo("storyboard")
             }
         }
@@ -158,10 +162,22 @@ Rectangle {
 
             // 预览图片
             Image {
+                id: previewImage
                 anchors.fill: parent
                 anchors.margins: 2
                 fillMode: Image.PreserveAspectFit
-                source: (shotData && shotData.localImagePath) ? shotData.localImagePath : ""
+                // 添加时间戳强制刷新图片
+                source: {
+                    if (shotData && shotData.localImagePath) {
+                        var path = shotData.localImagePath
+                        // 如果是本地文件，添加时间戳强制刷新
+                        if (path.indexOf("?") === -1) {
+                            return path + "?t=" + imageRefreshKey
+                        }
+                        return path
+                    }
+                    return ""
+                }
                 visible: !!source
                 cache: false
                 asynchronous: true
@@ -395,8 +411,14 @@ Rectangle {
                         onClicked: {
                             if (shotData) {
                                 saveCurrentEdits()
-                                var projId = shotDetailPage.projectId || "temp_id"
+                                // 使用 storyViewModel 中保存的 projectId
+                                var projId = storyViewModel.currentProjectId || shotDetailPage.projectId || "temp_id"
                                 var style = shotDetailPage.selec_style || "animation"
+
+                                console.log("Regenerating image for shot:", shotData.shotId)
+                                console.log("Project ID:", projId)
+                                console.log("Prompt:", promptArea.text)
+                                console.log("Style:", style)
 
                                 // 更新状态为生成中
                                 var temp = Object.assign({}, shotData)
@@ -408,6 +430,32 @@ Rectangle {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // ==================== 信号连接 ====================
+    Connections {
+        target: storyViewModel
+
+        function onImageRegenerated(shotDataResult) {
+            // 检查是否是当前分镜的图片
+            if (shotData && shotDataResult.shotId === shotData.shotId) {
+                console.log("Image regenerated for shot:", shotDataResult.shotId)
+                console.log("New local path:", shotDataResult.localImagePath)
+
+                // 保留用户编辑的内容，只更新图片路径和状态
+                saveCurrentEdits()
+                var updatedShot = Object.assign({}, shotData)
+                updatedShot.localImagePath = shotDataResult.localImagePath
+                updatedShot.status = "generated"
+                shotData = updatedShot
+
+                // 强制刷新图片显示
+                imageRefreshKey = Date.now()
+
+                // 通知父组件数据已更新
+                shotDetailPage.shotDataUpdated(shotData)
             }
         }
     }

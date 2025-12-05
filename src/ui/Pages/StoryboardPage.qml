@@ -283,9 +283,13 @@ Rectangle {
                 }
 
                 onClicked: {
-                    if (storyboardPage.projectData && storyboardPage.projectData.id) {
+                    // 检查是否有分镜数据
+                    if (storyboardPage.projectData && storyboardPage.projectData.storyboards && storyboardPage.projectData.storyboards.length > 0) {
+                        console.log("Navigating to preview with projectData:", JSON.stringify(storyboardPage.projectData))
                         // 跳转到预览页，传递完整的项目数据
                         storyboardPage.navigateTo("preview", storyboardPage.projectData)
+                    } else {
+                        console.error("No storyboards data available")
                     }
                 }
             }

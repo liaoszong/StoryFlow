@@ -145,6 +145,30 @@ Rectangle {
             // 发出导航信号，让 Main.qml 更新 currentPage
             home_right.navigateTo(page)
         }
+
+        // 监听分镜详情页数据更新
+        function onShotDataUpdated(updatedShot) {
+            console.log("RightPage: shotDataUpdated received:", JSON.stringify(updatedShot))
+            if (updatedShot && updatedShot.shotId) {
+                // 更新 currentShotData
+                home_right.currentShotData = updatedShot
+
+                // 同步更新到 projectData 中的 storyboards 列表
+                if (home_right.currentProjectData && home_right.currentProjectData.storyboards) {
+                    var proj = JSON.parse(JSON.stringify(home_right.currentProjectData))
+                    var list = proj.storyboards
+                    for (var i = 0; i < list.length; i++) {
+                        if (list[i].shotId === updatedShot.shotId) {
+                            // 更新所有字段
+                            list[i] = updatedShot
+                            break
+                        }
+                    }
+                    home_right.currentProjectData = proj
+                    console.log("RightPage: projectData updated with shot changes")
+                }
+            }
+        }
     }
 
     // 监听 ViewModel 事件
