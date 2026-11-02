@@ -1,10 +1,14 @@
 {
   "project": "VehicleCombat",
-  "phase": "PLANNED_AWAITING_START",
+  "phase": "M0_IN_PROGRESS",
+  "documents_authorized": true,
+  "user_start_authorized": true,
+  "start_authorization_evidence": "用户于2026-11-02明确回复：现在开工吧。",
   "host_verified": false,
+  "engine_installed_verified": false,
   "game_project_created": false,
-  "agents_spawned": [],
-  "current_milestone": "M0_NOT_STARTED",
-  "storage_and_move": {"target_root": "D:\\UE5Work", "user_reported_free_gb": 193, "migration_status": "BLOCKED_HOST_NOT_CONNECTED"},
+  "agents_spawned": ["infrastructure","asset_pipeline","vehicle_physics","combat_ui","world_testmap","qa_release"],
+  "current_milestone": "M0_IN_PROGRESS",
+  "storage_and_move": {"target_root": "D:\\UE5Work", "user_reported_free_gb": 193, "migration_status": "WAITING_HOST_CONNECTION"},
   "lifecycle_storage_constraint": {"limit_bytes": 160000000000, "temporary_overrun_allowed": false, "baseline_reset_allowed": false, "minimum_d_free_bytes": 21474836480}
 }
