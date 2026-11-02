@@ -1,0 +1,10 @@
+{
+  "project": "VehicleCombat",
+  "phase": "PLANNED_AWAITING_START",
+  "host_verified": false,
+  "game_project_created": false,
+  "agents_spawned": [],
+  "current_milestone": "M0_NOT_STARTED",
+  "storage_and_move": {"target_root": "D:\\UE5Work", "user_reported_free_gb": 193, "migration_status": "BLOCKED_HOST_NOT_CONNECTED"},
+  "lifecycle_storage_constraint": {"limit_bytes": 160000000000, "temporary_overrun_allowed": false, "baseline_reset_allowed": false, "minimum_d_free_bytes": 21474836480}
+}
